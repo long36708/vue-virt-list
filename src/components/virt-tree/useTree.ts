@@ -25,6 +25,7 @@ import { useSelect } from './useSelect';
 import { useFocus } from './useFocus';
 import { useExpand } from './useExpand';
 import { useDrag } from './useDrag';
+import { isBoolean } from '../../utils';
 
 const defaultFiledNames: Required<TreeFieldNames> = {
   key: 'key',
@@ -51,6 +52,7 @@ export const NODE_SELECT = 'select';
 export const UPDATE_SELECTED_KEYS = 'update:selectedKeys';
 
 export const NODE_CHECK = 'check';
+export const NODE_CHECK_CHANGE = 'check-change';
 export const UPDATE_CHECKED_KEYS = 'update:checkedKeys';
 
 export const DRAGSTART = 'dragstart';
@@ -98,6 +100,9 @@ export const TreeEmits = {
       halfCheckedNodes: TreeNodeData[];
     },
   ) => checkedKeys && data,
+
+  [NODE_CHECK_CHANGE]: (data: TreeNodeData, checked: boolean) =>
+    data && isBoolean(checked),
   [UPDATE_CHECKED_KEYS]: (checkedKeys: TreeNodeKey[]) => checkedKeys,
 
   [DRAGSTART]: (data: { sourceNode: TreeNodeData }) => data,

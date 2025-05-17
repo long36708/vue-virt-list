@@ -85,6 +85,16 @@ type Props = {
 
 <!<< @/demos/tree/Checkbox.vue
 
+## CheckboxBigData
+
+8 * 10w 节点的树，占用内存 500MB,复选框勾选 3s,滚动不卡,但是点击折叠展开会很卡
+
+8 * 3w 节点的树，占用内存 230MB,复选框勾选 1-2s,滚动不卡,但是点击折叠展开会很卡, 9s左右
+
+8 * 1w 节点的树，占用内存 200MB,复选框勾选 1s,滚动不卡,但是点击折叠展开会很卡, 9s左右
+
+<!<< @/demos/tree/CheckboxBigData.vue
+
 ## Filter
 
 <!<< @/demos/tree/Filter.vue
