@@ -238,7 +238,6 @@ export function mergeClasses(...classes: ClassType[]): string {
       });
     }
   });
-  console.log('mergedClasses', mergedClasses.trim());
   return mergedClasses.trim();
 }
 export const isUndefined = (val: any): val is undefined => val === undefined;

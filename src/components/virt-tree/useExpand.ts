@@ -5,6 +5,7 @@ import {
   watch,
   type SetupContext,
   type ShallowRef,
+  ref,
 } from 'vue-demi';
 import {
   UPDATE_EXPANDED_KEYS,
@@ -30,11 +31,12 @@ export const useExpand = ({
 }) => {
   let innerMode = false;
 
-  const expandedKeysSet = shallowRef<Set<TreeNodeKey>>(new Set());
+  const expandedKeysSet = ref<Set<TreeNodeKey>>(new Set());
   const hasExpanded = (node: TreeNode) => expandedKeysSet.value.has(node.key);
 
   const setExpandedKeys = () => {
     if (props.defaultExpandAll) {
+      // 存在性能问题，不建议使用此属性，可以使用 expandedKeys 替代
       expandedKeysSet.value = new Set(parentNodeKeys);
     } else if (props.expandedKeys !== undefined) {
       // clear all expanded keys
@@ -87,6 +89,15 @@ export const useExpand = ({
     });
   };
 
+  function expandNodeKey(node: TreeNode) {
+    const keySet = expandedKeysSet.value;
+
+    // 将当前节点加入已展开节点集合
+    keySet.add(node.key);
+    // todo 触发 NODE_EXPAND 事件，传递节点数据和节点对象
+    // emits(NODE_EXPAND, node.data, node);
+  }
+
   const expandNode = (
     key: TreeNodeKey | TreeNodeKey[],
     expanded: boolean,
@@ -103,6 +114,8 @@ export const useExpand = ({
       if (!node) return;
       if (expanded) {
         expandParents(node);
+        // expandNodeKey(node);
+        // 切换为折叠
       } else {
         if (node.isLeaf) {
           // 如果是叶子节点,需要折叠父节点
@@ -140,11 +153,23 @@ export const useExpand = ({
     emits(UPDATE_EXPANDED_KEYS, [...expandedKeysSet.value]);
   };
 
+  /**
+   * 切换树形结构中某个节点的展开/折叠状态
+   * 如果 virtListRef.value 不存在或节点是叶子节点（isLeaf 为真），则直接返回，不处理；
+   * 否则，通过 hasExpanded(node) 获取当前展开状态；
+   * 调用 expandNode(node.key, !expanded) 切换该节点的展开状态。
+   * @param node
+   */
   const toggleExpand = (node: TreeNode) => {
     if (!virtListRef.value) return;
     if (node.isLeaf) return;
     const expanded = hasExpanded(node);
     expandNode(node.key, !expanded);
+    // if (!expanded) {
+    //   expandNodeKey(node);
+    // } else {
+    //   expandNode(node.key, !expanded);
+    // }
   };
 
   watch(

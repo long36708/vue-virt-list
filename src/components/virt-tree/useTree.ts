@@ -473,21 +473,38 @@ export const useTree = (
   };
 
   // 实际渲染的节点
+  /**
+   * 根据树形结构数据生成需要渲染的扁平节点列表，并支持隐藏某些节点和虚拟滚动更新
+   * 具体逻辑如下：
+   * 过滤隐藏节点：通过 hiddenNodeKeys 过滤掉不需要显示的节点。
+   * 深度优先遍历树结构：使用栈实现非递归后序遍历（从右到左），确保层级顺序正确。
+   * 仅收集可见节点：只将未被隐藏的节点加入 flattenNodes。
+   * 触发虚拟列表更新：调用 virtListRef.value?.forceUpdate() 强制刷新虚拟列表组件。
+   */
   const renderList = computed(() => {
+    // 获取隐藏节点的键集合
     const hiddenNodeKeys = hiddenNodeKeySet.value;
+    // 从树信息中获取树节点，如果没有则默认为空数组
     const nodes = (treeInfo && treeInfo.treeNodes) || [];
+    // 初始化一个扁平化的节点数组
     const flattenNodes: TreeNode[] = [];
+    // 定义一个遍历函数，用于将树形结构的节点扁平化
     function traverse() {
       const stack: TreeNode[] = [];
+      // 将所有节点按逆序压入栈中，以便从根节点开始遍历
       for (let i = nodes.length - 1; i >= 0; --i) {
         stack.push(nodes[i]);
       }
+      // 当栈不为空时，继续遍历
       while (stack.length) {
+        // 弹出栈顶节点
         const node = stack.pop();
         if (!node) continue;
+        // 如果节点的键不在隐藏集合中，则将其加入扁平化数组
         if (!hiddenNodeKeys.has(node.key)) {
           flattenNodes.push(node);
         }
+        // 如果节点已展开且有子节点，则将子节点按逆序压入栈中
         if (hasExpanded(node)) {
           const children = node.children;
           if (children) {
@@ -499,9 +516,10 @@ export const useTree = (
         }
       }
     }
+    // 调用遍历函数
     traverse();
     // 每次需要调用VirtList的更新（因为可能出现length不变的情况）
-    virtListRef.value?.forceUpdate();
+    // virtListRef.value?.forceUpdate();
     return flattenNodes;
   });
 

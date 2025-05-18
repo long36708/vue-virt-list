@@ -75,7 +75,7 @@ const clearCheck = (check: boolean) => {
         checkOnClickNode
         v-model:checkedKeys="checkedKeys"
         @check="onCheck"
-        defaultExpandAll
+        :defaultExpandAll="false"
       >
         <template #empty>
           <div style="padding: 16px">暂无数据</div>
