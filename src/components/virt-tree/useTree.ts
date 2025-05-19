@@ -199,6 +199,7 @@ export const customFieldNames = {
   checkedKeys: {
     type: Array as PropType<TreeNodeKey[]>,
   },
+  // 当checkable为true时，节点的复选状态是否影响其父节点和子节点
   checkedStrictly: {
     type: Boolean,
     default: false,

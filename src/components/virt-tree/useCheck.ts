@@ -87,8 +87,8 @@ export const useCheck = ({
    * 最后更新选中与半选的 key 集合并触发响应式更新和事件通知。
    */
   const updateCheckedKeys = () => {
-    // 如果树形结构不是可选择模式，则不执行任何操作
-    if (!treeInfo || !props.checkable || !props.checkedStrictly) return;
+    // fix: 如果树形结构不是可选择模式，则不执行任何操作
+    if (!treeInfo || !props.checkable || props.checkedStrictly) return;
     // 从treeInfo对象中解构出最大层级和层级节点映射
     const { maxLevel, levelNodesMap } = treeInfo;
     // 获取当前选中节点的键集合
