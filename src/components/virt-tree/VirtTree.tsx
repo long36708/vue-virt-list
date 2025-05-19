@@ -60,6 +60,8 @@ export const VirtTree = defineComponent({
       itemClass,
     } = this.$props as TreeProps;
 
+    // 虚拟列表需要展示的所有数据，会去除隐藏的和未展开的节点
+    // console.log('renderList==>', renderList.length);
     const renderTreeNode = ({
       itemData,
     }: {

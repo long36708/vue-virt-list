@@ -31,13 +31,27 @@ export const useExpand = ({
 }) => {
   let innerMode = false;
 
-  const expandedKeysSet = ref<Set<TreeNodeKey>>(new Set());
+  const expandedKeysSet = shallowRef<Set<TreeNodeKey>>(new Set());
   const hasExpanded = (node: TreeNode) => expandedKeysSet.value.has(node.key);
 
-  const setExpandedKeys = () => {
+  const setExpandedKeysMod = (expandedKeys: TreeNodeKey[]) => {
+    expandedKeys.forEach((key) => {
+      const node = getTreeNode(key);
+      if (!node) return;
+      expandParents(node);
+    });
+  };
+
+  const setExpandedKeys = (keys: TreeNodeKey[] | undefined = undefined) => {
     if (props.defaultExpandAll) {
       // 存在性能问题，不建议使用此属性，可以使用 expandedKeys 替代
       expandedKeysSet.value = new Set(parentNodeKeys);
+    } else if (keys !== undefined) {
+      keys.forEach((key) => {
+        const node = getTreeNode(key);
+        if (!node) return;
+        expandParents(node);
+      });
     } else if (props.expandedKeys !== undefined) {
       // clear all expanded keys
       expandedKeysSet.value.clear();
@@ -61,6 +75,29 @@ export const useExpand = ({
     }
     if (!node?.parent) return;
     expandParents(node.parent);
+  };
+
+  const expandParentsMod = (node: TreeNode) => {
+    const path: TreeNode[] = [];
+    let current = node;
+    if (!node.isLeaf) {
+      expandedKeysSet.value.add(node.key);
+    }
+    while (current?.parent) {
+      if (!current.isLeaf) {
+        expandedKeysSet.value.add(current.key);
+      }
+      if (!expandedKeysSet.value.has(current.parent.key)) {
+        path.push(current.parent);
+      }
+      current = current.parent;
+    }
+
+    if (path.length > 0) {
+      path.forEach((parent) => {
+        expandedKeysSet.value.add(parent.key);
+      });
+    }
   };
 
   const foldParents = (node: TreeNode) => {
@@ -90,6 +127,7 @@ export const useExpand = ({
   };
 
   function expandNodeKey(node: TreeNode) {
+    if (!node) return;
     const keySet = expandedKeysSet.value;
 
     // 将当前节点加入已展开节点集合
@@ -113,8 +151,9 @@ export const useExpand = ({
       const node = getTreeNode(k);
       if (!node) return;
       if (expanded) {
-        expandParents(node);
-        // expandNodeKey(node);
+        // expandParents(node); // 30w 需要13s
+        expandParentsMod(node); // 30w 需要7s
+        // expandNodeKey(node?.parent); // 30w 需要7s
         // 切换为折叠
       } else {
         if (node.isLeaf) {

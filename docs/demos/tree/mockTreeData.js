@@ -1,15 +1,16 @@
 /**
  * @Author: longmo
  * @Date: 2025-05-14 14:02:03
- * @LastEditTime: 2025-05-18 23:50:19
+ * @LastEditTime: 2025-05-19 15:47:42
  * @FilePath: docs/demos/tree/mockTreeData.js
  * @Description:
  */
-export function mockTreeData(maxLength = 100_000) {
+export function mockTreeData(maxLength = 1_0000) {
   const data = [],
     root = 10,
-    children = 3,
-    base = maxLength;
+    // children = 3,
+    children = maxLength,
+    base = 3;
   for (let i = 0; i < root; i++) {
     data.push({
       id: `${i}`,

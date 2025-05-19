@@ -245,12 +245,6 @@ export const customFieldNames = {
   // },
 };
 
-export const TreeNodeEmits = {
-  click: (node: TreeNode, e: MouseEvent) => node && e,
-  check: (node: TreeNode, checked: boolean) =>
-    node && typeof checked === 'boolean',
-};
-
 export type TreeProps = ExtractPropTypes<typeof customFieldNames>;
 
 export const useTree = (
@@ -520,7 +514,7 @@ export const useTree = (
     // 调用遍历函数
     traverse();
     // 每次需要调用VirtList的更新（因为可能出现length不变的情况）
-    // virtListRef.value?.forceUpdate();
+    virtListRef.value?.forceUpdate();
     return flattenNodes;
   });
 
@@ -593,6 +587,7 @@ export const useTree = (
     toggleExpand,
     expandAll,
     expandNode,
+    setExpandedKeys,
 
     // select
     hasSelected,
