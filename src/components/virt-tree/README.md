@@ -50,14 +50,13 @@ VirtTree
 
 | 文件名                                                                                                               | 功能                                                                                                                                                                                                                                                                                                                                               |
 |-------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [VirtTree.tsx](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTree.tsx)         | 根组件，负责接收 props 并调用 [useTree](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L249-L617) 初始化树结构，使用 [VirtList](file:///Users/longmo/WebstormProjects/vue-virt-list/lib/components/virt-list/index.js#L571-L831) 渲染可视节点。                                                                                    |
-| [VirtTreeNode.tsx](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTreeNode.tsx) | 单个节点组件，处理点击、展开、勾选等交互行为。                                                                                                                                                                                                                                                                                                                          |
-| [useTree.ts](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts)             | 核心逻辑，构建树结构、管理节点状态、提供 API。                                                                                                                                                                                                                                                                                                                        |
-| [useCheck.ts](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useCheck.ts)           | 处理复选框逻辑，如全选、半选、父子联动。                                                                                                                                                                                                                                                                                                                             |
-| [useSelect.ts](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useSelect.ts)         | 处理节点选中状态。                                                                                                                                                                                                                                                                                                                                        |
-| [useExpand.ts](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useExpand.ts)         | 控制节点展开/收起状态。                                                                                                                                                                                                                                                                                                                                     |
-| [useDrag.ts](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts)             | 支持节点拖拽排序。                                                                                                                                                                                                                                                                                                                                        |
-| [type.ts](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/real-list/type.ts)                   | 定义类型，如 [TreeNode](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/type.ts#L4-L16), [TreeProps](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L247-L247), [TreeEmits](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L60-L115) 等。 |
+| [VirtTree.tsx](./VirtTree.tsx)         | 根组件，负责接收 props 并调用 [useTree](./useTree.ts#L249-L617) 初始化树结构，使用 [VirtList](vue-virt-list/lib/components/virt-list/index.js#L571-L831) 渲染可视节点。                                                                                    |
+| [VirtTreeNode.tsx](./VirtTreeNode.tsx) | 单个节点组件，处理点击、展开、勾选等交互行为。                                                                                                                                                                                                                                                                                                                          |
+| [useTree.ts](./useTree.ts)                                                                                        | 核心逻辑，构建树结构、管理节点状态、提供 API。                                                                                                                                                                                                                                                                                                                        |
+| [useCheck.ts](./useCheck.ts)           | 处理复选框逻辑，如全选、半选、父子联动。                                                                                                                                                                                                                                                                                                                             |
+| [useSelect.ts](./useSelect.ts)         | 处理节点选中状态。                                                                                                                                                                                                                                                                                                                                        |
+| [useExpand.ts](./useExpand.ts)         | 控制节点展开/收起状态。                                                                                                                                                                                                                                                                                                                                     |
+| [useDrag.ts](./useDrag.ts)             | 支持节点拖拽排序。                                                                                                                                                                                                                                                                                                                                        |
 
 ---
 
@@ -141,6 +140,14 @@ const TreeEmits = {
 
 - 对高频事件（如滚动、窗口变化）进行防抖或节流处理。
 
+### 5. 控制响应式更新范围
+
+- 使用 `shallowRef` + `triggerRef` 控制响应式更新范围
+
+### 6. 优化数据结构
+
+- 使用 `Set` 存储 keys，提升查找效率
+
 ---
 
 ## 六、样式系统
@@ -171,7 +178,7 @@ const TreeEmits = {
 </template>
 
 <script setup>
-  import {VirtTree} from 'virt-tree';
+  import {VirtTree} from 'vue-virt-list';
 
   const treeData = [
     {
@@ -191,7 +198,6 @@ const TreeEmits = {
 ## 八、后续扩展建议
 
 - 支持异步加载子节点（懒加载）。
-- 支持键盘快捷键导航（上下、空格选中等）。
 - 支持右键菜单、复制路径等功能。
 
 ---
@@ -200,13 +206,15 @@ const TreeEmits = {
 
 `virt-tree` 是一个高性能、可定制化的树形组件，适用于需要展示大量层级数据的场景。
 
-其结合虚拟滚动与树形结构的优势，使得即使面对成百上千条数据也能保持流畅体验。
+其结合虚拟滚动与树形结构的优势，使得即使面对 100w 数据也能保持流畅体验。
 
-# [useCheck](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useCheck.ts#L17-L409) 设计文档
+# [useCheck](./useCheck.ts#L17-L409) 设计文档
 
 ## 一、模块概述
 
-[useCheck](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useCheck.ts#L17-L409) 是 `virt-tree` 组件中用于管理节点复选框状态的核心逻辑模块。它负责处理树形结构中节点的 **全选**、**取消全选**、**勾选/取消勾选单个节点**、**父子联动选择** 等功能，并维护组件内部的响应式状态。
+[useCheck](./useCheck.ts#L17-L409) 是 `virt-tree` 组件中用于管理节点复选框状态的核心逻辑模块。
+
+它负责处理树形结构中节点的 **全选**、**取消全选**、**勾选/取消勾选单个节点**、**父子联动选择** 等功能，并维护组件内部的响应式状态。
 
 ---
 
@@ -220,7 +228,7 @@ const TreeEmits = {
 
 ### 2. 响应式更新机制
 - 使用 Vue 的 `shallowRef` + `triggerRef` 实现高性能响应式更新
-- 区分外部传入 [checkedKeys](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L198-L200) 与内部状态变更，避免冲突
+- 区分外部传入 [checkedKeys](./useTree.ts#L198-L200) 与内部状态变更，避免冲突
 
 ### 3. 树状结构联动
 - 自底向上同步父节点状态
@@ -230,7 +238,7 @@ const TreeEmits = {
 
 ## 三、数据结构定义
 
-### 1. 类型定义（来自 [type.ts](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/real-list/type.ts)）
+### 1. 类型定义（来自 [type.ts](vue-virt-list/src/components/real-list/type.ts)）
 
 ```ts
 export type TreeNodeKey = string | number;
@@ -255,16 +263,16 @@ export interface TreeNode<T = TreeNodeData> {
 
 | 变量名             | 类型               | 描述                     |
 |------------------|--------------------|--------------------------|
-| [checkedKeysSet](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useCheck.ts#L45-L45)   | `shallowRef<Set>`    | 当前被选中的节点 key 集合     |
-| [indeterminateKeysSet](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useCheck.ts#L46-L46) | `shallowRef<Set>`    | 当前处于半选状态的节点 key 集合 |
+| [checkedKeysSet](./useCheck.ts#L45-L45)   | `shallowRef<Set>`    | 当前被选中的节点 key 集合     |
+| [indeterminateKeysSet](./useCheck.ts#L46-L46) | `shallowRef<Set>`    | 当前处于半选状态的节点 key 集合 |
 
 ---
 
 ## 四、主要函数说明
 
-### 1. 初始化方法 [useCheck](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useCheck.ts#L17-L409)
+### 1. 初始化方法 [useCheck](./useCheck.ts#L17-L409)
 
-```ts
+```text
 const useCheck = ({
   props,
   treeInfo,
@@ -280,10 +288,10 @@ const useCheck = ({
 
 
 #### 参数说明：
-- [props](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTreeNode.tsx#L95-L95): 树组件的配置属性，如 [checkable](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L194-L197)、[checkedKeys](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L198-L200)
-- [treeInfo](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L273-L279): 树结构信息，包含所有节点及层级关系
-- [emits](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTreeNode.tsx#L96-L96): 事件发射器，用于触发 `UPDATE_CHECKED_KEYS`、`NODE_CHECK` 等事件
-- [getTreeNode](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L287-L289): 通过 key 获取节点对象的方法
+- [props](./VirtTreeNode.tsx#L95-L95): 树组件的配置属性，如 [checkable](./useTree.ts#L194-L197)、[checkedKeys](./useTree.ts#L198-L200)
+- [treeInfo](./useTree.ts#L273-L279): 树结构信息，包含所有节点及层级关系
+- [emits](./VirtTreeNode.tsx#L96-L96): 事件发射器，用于触发 `UPDATE_CHECKED_KEYS`、`NODE_CHECK` 等事件
+- [getTreeNode](./useTree.ts#L287-L289): 通过 key 获取节点对象的方法
 
 ---
 
@@ -291,15 +299,15 @@ const useCheck = ({
 
 | 方法名              | 功能描述                                                                 |
 |-------------------|------------------------------------------------------------------------|
-| [setCheckedKeys](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useCheck.ts#L59-L78)     | 根据 `props.checkedKeys` 设置初始选中状态，并清空旧状态                           |
-| [updateCheckedKeys](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useCheck.ts#L88-L161)  | 更新整个树的选中状态（包括父节点），从叶子节点向上遍历判断是否全选或半选                |
-| [_toggleCheckbox](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useCheck.ts#L173-L212)     | 切换某个节点及其子节点的选中状态（递归操作）                                     |
-| [toggleCheckbox](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useCheck.ts#L214-L219)      | 用户点击复选框时调用，切换节点选中状态并触发事件                                    |
-| [afterNodeCheck](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useCheck.ts#L289-L305)      | 节点状态变化后触发 `NODE_CHECK` 和 `NODE_CHECK_CHANGE` 事件                         |
-| [checkAll](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useCheck.ts#L315-L331)           | 全选或取消全选所有可选节点                                                     |
-| [checkNode](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useCheck.ts#L343-L362)          | 手动设置指定节点为选中或未选中状态                                              |
-| [getChecked](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useCheck.ts#L229-L258)         | 获取当前所有选中的节点 key 和 data                                             |
-| [getHalfChecked](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useCheck.ts#L259-L278)     | 获取当前所有半选的节点 key 和 data                                             |
+| [setCheckedKeys](./useCheck.ts#L59-L78)     | 根据 `props.checkedKeys` 设置初始选中状态，并清空旧状态                           |
+| [updateCheckedKeys](./useCheck.ts#L88-L161)  | 更新整个树的选中状态（包括父节点），从叶子节点向上遍历判断是否全选或半选                |
+| [_toggleCheckbox](./useCheck.ts#L173-L212)     | 切换某个节点及其子节点的选中状态（递归操作）                                     |
+| [toggleCheckbox](./useCheck.ts#L214-L219)      | 用户点击复选框时调用，切换节点选中状态并触发事件                                    |
+| [afterNodeCheck](./useCheck.ts#L289-L305)      | 节点状态变化后触发 `NODE_CHECK` 和 `NODE_CHECK_CHANGE` 事件                         |
+| [checkAll](./useCheck.ts#L315-L331)           | 全选或取消全选所有可选节点                                                     |
+| [checkNode](./useCheck.ts#L343-L362)          | 手动设置指定节点为选中或未选中状态                                              |
+| [getChecked](./useCheck.ts#L229-L258)         | 获取当前所有选中的节点 key 和 data                                             |
+| [getHalfChecked](./useCheck.ts#L259-L278)     | 获取当前所有半选的节点 key 和 data                                             |
 
 ---
 
@@ -307,7 +315,7 @@ const useCheck = ({
 
 ### 1. 状态初始化与控制权切换
 
-- 如果用户传入了 [checkedKeys](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L198-L200)，则进入 **非受控模式**，由外部驱动状态。
+- 如果用户传入了 [checkedKeys](./useTree.ts#L198-L200)，则进入 **非受控模式**，由外部驱动状态。
 - 如果未传入，则进入 **受控模式**，由组件内部维护状态，并通过 `triggerRef` 触发更新。
 
 ```ts
@@ -444,8 +452,7 @@ return {
 };
 ```
 
-
-这些方法可以被 [VirtTree](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTree.tsx#L12-L155) 或其他组合函数引用并使用，例如：
+这些方法可以被 [VirtTree](./VirtTree.tsx#L12-L155) 或其他组合函数引用并使用，例如：
 
 ```ts
 const {
@@ -455,14 +462,13 @@ const {
 } = useCheck({ props, treeInfo, emits, getTreeNode });
 ```
 
-
 ---
 
 ## 八、性能优化策略
 
 - 使用 `Set` 存储 keys，提升查找效率
 - 使用 `shallowRef` + `triggerRef` 控制响应式更新范围
-- 在 [checkAll](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useCheck.ts#L315-L331) 中避免重复创建新数组
+- 在 [checkAll](./useCheck.ts#L315-L331) 中避免重复创建新数组
 - 对大规模数据进行防抖/节流处理（注释中标明可能优化方向）
 
 ---
@@ -470,7 +476,7 @@ const {
 ## 九、未来扩展建议
 
 - ✅ 异步加载支持：允许在展开懒加载节点后再进行勾选
-- ✅ 权限过滤：根据 [disableCheckbox](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L34-L34) 过滤不可选节点
+- ✅ 权限过滤：根据 [disableCheckbox](./useTree.ts#L34-L34) 过滤不可选节点
 - 🔄 性能优化：对 `Array.from(checkedKeysSet)` 的频繁转换做缓存处理
 - 📈 提供 `getCheckedCount()` 获取当前选中数量
 
@@ -478,7 +484,7 @@ const {
 
 ## 十、总结
 
-[useCheck](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useCheck.ts#L17-L409) 是一个高度封装且灵活的树形结构复选框管理模块，其设计目标是：
+[useCheck](./useCheck.ts#L17-L409) 是一个高度封装且灵活的树形结构复选框管理模块，其设计目标是：
 
 - ✅ 提供清晰的 API 接口
 - ✅ 支持多种使用场景（受控/非受控）
@@ -487,125 +493,11 @@ const {
 
 它是构建高效、可扩展的虚拟滚动树形组件的关键模块之一。
 
+# [useDrag](./useDrag.ts#L18-L586) 设计文档
 
-# isLeaf?: boolean; isLast?: boolean; 有何区别？
+[useDrag](./useDrag.ts#L18-L586) 是一个用于实现树形组件中节点拖拽功能的 Vue Composition API 模块。
 
-在树形结构中，[isLeaf](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/type.ts#L8-L8) 和 [isLast](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/type.ts#L9-L9) 是两个用于描述节点特性的布尔属性，它们的用途和含义有明显区别：
-
----
-
-### ✅ `isLeaf?: boolean`
-
-#### 含义：
-- 表示当前节点是否为**叶子节点（leaf node）**
-- **叶子节点**指的是没有子节点的节点
-
-#### 使用场景：
-- 通常用于判断该节点是否可以展开/折叠
-- 在 UI 上决定是否显示“展开图标”
-- 在复选框逻辑中影响父子联动选择
-
-#### 示例：
-```text
-{
-  key: '1',
-  title: 'Parent Node',
-  isLeaf: false,
-  children: [
-    {
-      key: '1-1',
-      title: 'Leaf Node',
-      isLeaf: true, // 没有 children，是叶子节点
-    }
-  ]
-}
-```
-
-
----
-
-### ✅ `isLast?: boolean`
-
-#### 含义：
-- 表示当前节点在其父节点的子节点列表中是否是**最后一个节点**
-- 主要用于样式或布局控制，如连接线绘制、缩进等视觉效果
-
-#### 使用场景：
-- 控制树连接线的显示方式（例如最后一条子节点不画竖线）
-- 样式渲染时区分层级末尾节点
-
-#### 示例：
-```text
-{
-  key: '1',
-  title: 'Parent Node',
-  children: [
-    { key: '1-1', title: 'First Child', isLast: false },
-    { key: '1-2', title: 'Second Child', isLast: true }, // 最后一个子节点
-  ]
-}
-```
-
-
----
-
-## 🧠 总结对比表
-
-| 属性       | 类型     | 含义                                 | 是否影响UI表现        | 是否参与数据逻辑 |
-|------------|----------|--------------------------------------|------------------------|------------------|
-| [isLeaf](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/type.ts#L8-L8)   | 布尔值   | 当前节点是否是叶子节点（无子节点）     | ✅ 是（展开图标、勾选逻辑） | ✅ 是             |
-| [isLast](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/type.ts#L9-L9)   | 布尔值   | 当前节点是否是其父节点下的最后一个子节点 | ✅ 是（连接线、缩进样式） | ❌ 否             |
-
----
-
-## 📌 实际应用举例（来自你提供的项目）
-
-在 [VirtTreeNode.tsx](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTreeNode.tsx#L135-L147) 中可以看到如下代码片段：
-
-```tsx
-'virt-tree-node-indent-block-line-vertical--half':
-  showLine && index === node.level - 2 && !!node.isLast && !isExpanded
-```
-
-
-这段代码表示：
-- 如果启用了连接线 ([showLine](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L153-L156))
-- 并且当前是倒数第二个缩进块 (`index === node.level - 2`)
-- 且当前节点是最后一个子节点 (`node.isLast === true`)
-- 且当前节点未展开 (`!isExpanded`)
-- 则使用“半条线”样式来优化连接线显示
-
----
-
-## ✅ 推荐命名建议
-
-如果你希望更清晰表达语义，也可以考虑改名为：
-
-```text
-isLeaf -> hasChildren (取反：!hasChildren)
-isLast -> isLastChild
-```
-
-
-这样在某些业务逻辑中可读性更强。
-
----
-
-## 📎 结论
-
-| 场景               | 使用属性     | 说明                             |
-|--------------------|--------------|----------------------------------|
-| 判断是否可展开     | [isLeaf](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/type.ts#L8-L8)     | 叶子节点不可展开                 |
-| 显示连接线样式     | [isLast](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/type.ts#L9-L9)     | 控制最后一项子节点的连线样式     |
-| 节点状态更新       | [isLeaf](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/type.ts#L8-L8)     | 影响复选框父子联动               |
-| 缩进布局优化       | [isLast](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/type.ts#L9-L9)     | 控制层级缩进视觉效果             |
-
-这两个属性配合使用，可以实现高度定制化的树形结构渲染。
-
-
-# [useDrag](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L18-L586) 设计文档
-
-[useDrag](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L18-L586) 是一个用于实现树形组件中节点拖拽功能的 Vue Composition API 模块。它提供了完整的拖拽交互逻辑，包括：
+它提供了完整的拖拽交互逻辑，包括：
 
 - 节点拖拽开始
 - 拖拽过程中的位置判断与视觉反馈
@@ -619,7 +511,7 @@ isLast -> isLastChild
 
 ### 📌 功能定位
 
-[useDrag](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L18-L586) 的核心职责是：
+[useDrag](./useDrag.ts#L18-L586) 的核心职责是：
 
 - **提供拖拽交互能力**：通过监听鼠标事件实现拖拽行为。
 - **管理拖拽状态**：如当前被拖拽节点、目标插入位置、层级变化等。
@@ -630,7 +522,7 @@ isLast -> isLastChild
 
 ## 二、输入参数说明
 
-```ts
+```text
 export const useDrag = ({
   props,
   virtListRef,
@@ -653,13 +545,13 @@ export const useDrag = ({
 
 | 参数名         | 类型                         | 描述                                                                 |
 |---------------|------------------------------|----------------------------------------------------------------------|
-| [props](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTreeNode.tsx#L95-L95)       | [TreeProps](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L247-L247)                  | 树组件配置信息，包含 [indent](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L132-L135), [dragClass](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L221-L224), [dragGhostClass](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L225-L228) 等        |
-| [virtListRef](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L255-L255) | `ShallowRef<typeof VirtList>` | 虚拟滚动列表引用，用于获取 DOM 元素和触发滚动                        |
-| [dragging](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L254-L254)    | `Ref<boolean>`               | 响应式变量，表示是否正在拖拽                                         |
-| [getTreeNode](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L287-L289) | `(key: TreeNodeKey) => TreeNode | undefined` | 通过 key 获取节点对象的方法                                           |
-| [hasExpanded](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useExpand.ts#L34-L34) | `(node: TreeNode) => boolean` | 判断节点是否已展开                                                   |
-| [expandNode](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useExpand.ts#L138-L192)  | `(key: TreeNodeKey, expanded: boolean) => void` | 控制节点展开/收起                                                    |
-| [emits](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTreeNode.tsx#L96-L96)       | `SetupContext['emit']`       | 用于触发 [dragstart](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L135-L175) 和 `dragend` 事件                              |
+| [props](./VirtTreeNode.tsx#L95-L95)       | [TreeProps](./useTree.ts#L247-L247)                  | 树组件配置信息，包含 [indent](./useTree.ts#L132-L135), [dragClass](./useTree.ts#L221-L224), [dragGhostClass](./useTree.ts#L225-L228) 等        |
+| [virtListRef](./useTree.ts#L255-L255) | `ShallowRef<typeof VirtList>` | 虚拟滚动列表引用，用于获取 DOM 元素和触发滚动                        |
+| [dragging](./useTree.ts#L254-L254)    | `Ref<boolean>`               | 响应式变量，表示是否正在拖拽                                         |
+| [getTreeNode](./useTree.ts#L287-L289) | `(key: TreeNodeKey) => TreeNode | undefined` | 通过 key 获取节点对象的方法                                           |
+| [hasExpanded](./useExpand.ts#L34-L34) | `(node: TreeNode) => boolean` | 判断节点是否已展开                                                   |
+| [expandNode](./useExpand.ts#L138-L192)  | `(key: TreeNodeKey, expanded: boolean) => void` | 控制节点展开/收起                                                    |
+| [emits](./VirtTreeNode.tsx#L96-L96)       | `SetupContext['emit']`       | 用于触发 [dragstart](./useDrag.ts#L135-L175) 和 `dragend` 事件                              |
 
 ---
 
@@ -707,7 +599,7 @@ export const useDrag = ({
 
 ## 四、关键函数说明
 
-### 1. [onDragstart(event: MouseEvent)](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L106-L127)
+### 1. [onDragstart(event: MouseEvent)](./useDrag.ts#L106-L127)
 
 #### ⚙️ 功能：
 - 初始化拖拽操作
@@ -716,11 +608,11 @@ export const useDrag = ({
 #### 🔁 关键流程：
 1. 查找被拖拽的 `.virt-tree-item` 元素
 2. 设置 `clientElementRect` 和 `scrollElement`
-3. 绑定 `mousemove`, `mouseup`, `keydown`, [scroll](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-list/type.ts#L64-L64) 事件
+3. 绑定 `mousemove`, `mouseup`, `keydown`, [scroll](vue-virt-list/src/components/virt-list/type.ts#L64-L64) 事件
 
 ---
 
-### 2. [dragstart()](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L135-L175)
+### 2. [dragstart()](./useDrag.ts#L135-L175)
 
 #### ⚙️ 功能：
 - 创建拖拽克隆节点并添加样式类
@@ -728,14 +620,14 @@ export const useDrag = ({
 - 如果节点已展开，则延迟收起
 
 #### 🔁 关键流程：
-1. 获取被拖拽节点的 [nodeKey](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L139-L139)
-2. 调用 [getTreeNode(nodeKey)](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L287-L289) 获取节点对象
+1. 获取被拖拽节点的 [nodeKey](./useDrag.ts#L139-L139)
+2. 调用 [getTreeNode(nodeKey)](./useTree.ts#L287-L289) 获取节点对象
 3. 创建克隆节点 `cloneTreeItem` 并设置样式
 4. 将克隆节点插入到 `body` 中
 
 ---
 
-### 3. [dragProcess()](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L226-L453)
+### 3. [dragProcess()](./useDrag.ts#L226-L453)
 
 #### ⚙️ 功能：
 - 实时处理拖拽过程中的交互逻辑
@@ -745,12 +637,12 @@ export const useDrag = ({
 #### 🔁 关键流程：
 1. 获取当前鼠标位置下的节点 `hoverTreeItem`
 2. 计算鼠标相对于该节点顶部的比例，决定插入位置（top / center / bottom）
-3. 根据插入位置更新 [dragLine](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L99-L99) 或 [dragBox](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L96-L96) 的显示
+3. 根据插入位置更新 [dragLine](./useDrag.ts#L99-L99) 或 [dragBox](./useDrag.ts#L96-L96) 的显示
 4. 如果插入到中间（center），则尝试自动展开目标节点
 
 ---
 
-### 4. [autoScroll()](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L178-L224)
+### 4. [autoScroll()](./useDrag.ts#L178-L224)
 
 #### ⚙️ 功能：
 - 在鼠标接近视口边缘时自动滚动容器
@@ -762,16 +654,16 @@ export const useDrag = ({
 
 ---
 
-### 5. [onMousemove(event: any)](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L455-L473)
+### 5. [onMousemove(event: any)](./useDrag.ts#L455-L473)
 
 #### ⚙️ 功能：
 - 拖拽过程中实时更新克隆节点位置
-- 调用 [dragProcess()](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L226-L453) 执行拖拽逻辑
-- 触发 [autoScroll()](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L178-L224) 实现自动滚动
+- 调用 [dragProcess()](./useDrag.ts#L226-L453) 执行拖拽逻辑
+- 触发 [autoScroll()](./useDrag.ts#L178-L224) 实现自动滚动
 
 ---
 
-### 6. [onMouseup()](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L475-L574)
+### 6. [onMouseup()](./useDrag.ts#L475-L574)
 
 #### ⚙️ 功能：
 - 结束拖拽操作
@@ -780,7 +672,7 @@ export const useDrag = ({
 
 ---
 
-### 7. [onKeydown(event: KeyboardEvent)](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L575-L581)
+### 7. [onKeydown(event: KeyboardEvent)](./useDrag.ts#L575-L581)
 
 #### ⚙️ 功能：
 - 支持 ESC 键取消拖拽操作
@@ -797,13 +689,12 @@ cloneTreeItem.classList.add('virt-tree-item--ghost');
 document.body.append(cloneTreeItem);
 ```
 
-
 - **用途**：提供视觉反馈，让用户知道当前正在拖拽哪个节点
 - **样式类**：`.virt-tree-item--ghost`
 
 ---
 
-### ✅ 拖拽占位框（[dragBox](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L96-L96)）
+### ✅ 拖拽占位框（[dragBox](./useDrag.ts#L96-L96)）
 
 ```ts
 dragBox.classList.add('virt-tree-drag-box');
@@ -816,7 +707,7 @@ hoverTreeItem?.appendChild(dragBox);
 
 ---
 
-### ✅ 拖拽连接线（[dragLine](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L99-L99) + [levelArrow](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L103-L103)）
+### ✅ 拖拽连接线（[dragLine](./useDrag.ts#L99-L99) + [levelArrow](./useDrag.ts#L103-L103)）
 
 ```ts
 dragLine.classList.add('virt-tree-drag-line');
@@ -831,7 +722,7 @@ levelArrow.classList.add('virt-tree-drag-line-arrow');
 
 ## 六、事件系统
 
-### 📣 事件定义（来自 [useTree.ts](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts)）
+### 📣 事件定义（来自 [useTree.ts](./useTree.ts)）
 
 ```ts
 const TreeEmits = {
@@ -843,7 +734,7 @@ const TreeEmits = {
 
 | 事件名     | 参数类型       | 触发时机                          |
 |------------|----------------|-----------------------------------|
-| [dragstart](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L135-L175) | `{ sourceNode }` | 用户开始拖拽时                       |
+| [dragstart](./useDrag.ts#L135-L175) | `{ sourceNode }` | 用户开始拖拽时                       |
 | `dragend`   | `DragEndInfo`  | 拖拽结束时，携带插入位置信息         |
 
 ### 🧾 `DragEndInfo` 接口定义
@@ -866,7 +757,7 @@ interface DragEndInfo {
 - 使用 `hasStyleTreeItem` 缓存上次设置了样式的节点，便于清理
 
 ### ✅ 防抖与节流
-- 对自动展开 (`hoverExpand`)、自动滚动 ([autoScroll](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L178-L224)) 使用 `setTimeout` / `setInterval` 控制频率
+- 对自动展开 (`hoverExpand`)、自动滚动 ([autoScroll](./useDrag.ts#L178-L224)) 使用 `setTimeout` / `setInterval` 控制频率
 
 ### ✅ 减少重复计算
 - 使用 `lastHoverTreeItem` 缓存上一个悬浮节点，减少不必要的 DOM 查询
@@ -880,7 +771,7 @@ interface DragEndInfo {
 - 提供 `onDrop` 回调，用于外部更新树结构数据
 
 ### 🎨 样式定制
-- 支持传入 [dragClass](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L221-L224) 和 [dragGhostClass](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L225-L228)，自定义拖拽样式
+- 支持传入 [dragClass](./useTree.ts#L221-L224) 和 [dragGhostClass](./useTree.ts#L225-L228)，自定义拖拽样式
 
 ---
 
@@ -917,7 +808,7 @@ const {
 | 方向           | 描述                                                         |
 |----------------|--------------------------------------------------------------|
 | 拖拽排序算法优化 | 支持复杂嵌套结构的精确排序                                     |
-| 拖拽限制       | 支持 [disableDragIn](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L35-L35), [disableDragOut](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L36-L36) 控制拖拽行为             |
+| 拖拽限制       | 支持 [disableDragIn](./useTree.ts#L35-L35), [disableDragOut](./useTree.ts#L36-L36) 控制拖拽行为             |
 | 拖拽动画       | 添加过渡动画提升用户体验                                        |
 | 移动端适配     | 补充对 TouchEvent 的支持                                       |
 | 拖拽热区识别   | 更智能地识别目标节点，防止误判                                   |
@@ -926,7 +817,7 @@ const {
 
 ## 十一、总结
 
-[useDrag](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L18-L586) 是 `virt-tree` 组件中实现节点拖拽的核心模块，其特点如下：
+[useDrag](./useDrag.ts#L18-L586) 是 `virt-tree` 组件中实现节点拖拽的核心模块，其特点如下：
 
 | 特性           | 描述                                                       |
 |----------------|------------------------------------------------------------|
@@ -937,11 +828,13 @@ const {
 
 它是构建一个完整虚拟滚动树组件的关键部分之一，为用户提供了一个直观、高效的拖拽体验。
 
-# [useExpand](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useExpand.ts) 设计文档
+# [useExpand](./useExpand.ts) 设计文档
 
 ## 一、模块概述
 
-[useExpand](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useExpand.ts) 是 `virt-tree` 组件中用于管理节点展开/收起状态的核心逻辑模块。它负责处理树形结构中节点的 **展开**、**收起**、**展开所有**、**收起所有** 等功能，并维护组件内部的响应式状态。
+[useExpand](./useExpand.ts) 是 `virt-tree` 组件中用于管理节点展开/收起状态的核心逻辑模块。
+
+它负责处理树形结构中节点的 **展开**、**收起**、**展开所有**、**收起所有** 等功能，并维护组件内部的响应式状态。
 
 ---
 
@@ -954,7 +847,7 @@ const {
 
 ### 2. 响应式更新机制
 - 使用 Vue 的 `shallowRef` + `triggerRef` 实现高性能响应式更新
-- 区分外部传入 [expandedKeys](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L172-L174) 与内部状态变更，避免冲突
+- 区分外部传入 [expandedKeys](./useTree.ts#L172-L174) 与内部状态变更，避免冲突
 
 ### 3. 树状结构联动
 - 支持展开/收起单个节点及其所有子节点
@@ -964,7 +857,7 @@ const {
 
 ## 三、数据结构定义
 
-### 1. 类型定义（来自 [type.ts](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/type.ts)）
+### 1. 类型定义（来自 [type.ts](./type.ts)）
 
 ```ts
 export type TreeNodeKey = string | number;
@@ -989,15 +882,15 @@ export interface TreeNode<T = TreeNodeData> {
 
 | 变量名              | 类型               | 描述                     |
 |------------------|--------------------|--------------------------|
-| [expandedKeysSet](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useExpand.ts#L18-L18) | `shallowRef<Set>` | 当前被展开的节点 key 集合 |
+| [expandedKeysSet](./useExpand.ts#L18-L18) | `shallowRef<Set>` | 当前被展开的节点 key 集合 |
 
 ---
 
 ## 四、主要函数说明
 
-### 1. 初始化方法 [useExpand](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useExpand.ts)
+### 1. 初始化方法 [useExpand](./useExpand.ts)
 
-```ts
+```text
 const useExpand = ({
   props,
   virtListRef,
@@ -1015,11 +908,11 @@ const useExpand = ({
 
 
 #### 参数说明：
-- [props](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTreeNode.tsx#L95-L95): 树组件的配置属性，如 [defaultExpandAll](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L170-L173)、[expandedKeys](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L174-L176)
-- [virtListRef](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L255-L255): 虚拟滚动列表引用，用于触发滚动
-- [parentNodeKeys](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L256-L256): 所有非叶子节点的 key 列表
-- [getTreeNode](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L287-L289): 通过 key 获取节点对象的方法
-- [emits](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTreeNode.tsx#L96-L96): 事件发射器，用于触发 `UPDATE_EXPANDED_KEYS`、`NODE_EXPAND` 等事件
+- [props](./VirtTreeNode.tsx#L95-L95): 树组件的配置属性，如 [defaultExpandAll](./useTree.ts#L170-L173)、[expandedKeys](./useTree.ts#L174-L176)
+- [virtListRef](./useTree.ts#L255-L255): 虚拟滚动列表引用，用于触发滚动
+- [parentNodeKeys](./useTree.ts#L256-L256): 所有非叶子节点的 key 列表
+- [getTreeNode](./useTree.ts#L287-L289): 通过 key 获取节点对象的方法
+- [emits](./VirtTreeNode.tsx#L96-L96): 事件发射器，用于触发 `UPDATE_EXPANDED_KEYS`、`NODE_EXPAND` 等事件
 
 ---
 
@@ -1027,13 +920,13 @@ const useExpand = ({
 
 | 方法名             | 功能描述                                                                 |
 |------------------|------------------------------------------------------------------------|
-| [setExpandedKeys](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useExpand.ts#L34-L53)       | 设置初始展开状态，包括自动展开所有父节点                                         |
-| [expandParents](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useExpand.ts#L65-L74)        | 展开指定节点的所有父节点                                                      |
-| [expandParentsMod](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useExpand.ts#L76-L92)     | 改进版的 [expandParents](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useExpand.ts#L71-L77)，性能更优                                             |
-| [foldParents](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useExpand.ts#L94-L100)         | 收起指定节点的所有父节点                                                      |
-| [expandNode](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useExpand.ts#L121-L158)       | 控制单个节点的展开/收起状态                                                   |
-| [toggleExpand](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useExpand.ts#L180-L189)      | 切换某个节点的展开/收起状态                                                   |
-| [expandAll](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useExpand.ts#L159-L177)         | 全部展开或全部收起所有可展开节点                                               |
+| [setExpandedKeys](./useExpand.ts#L34-L53)       | 设置初始展开状态，包括自动展开所有父节点                                         |
+| [expandParents](./useExpand.ts#L65-L74)        | 展开指定节点的所有父节点                                                      |
+| [expandParentsMod](./useExpand.ts#L76-L92)     | 改进版的 [expandParents](./useExpand.ts#L71-L77)，性能更优                                             |
+| [foldParents](./useExpand.ts#L94-L100)         | 收起指定节点的所有父节点                                                      |
+| [expandNode](./useExpand.ts#L121-L158)       | 控制单个节点的展开/收起状态                                                   |
+| [toggleExpand](./useExpand.ts#L180-L189)      | 切换某个节点的展开/收起状态                                                   |
+| [expandAll](./useExpand.ts#L159-L177)         | 全部展开或全部收起所有可展开节点                                               |
 
 ---
 
@@ -1041,7 +934,7 @@ const useExpand = ({
 
 ### 1. 状态初始化与控制权切换
 
-- 如果用户传入了 [expandedKeys](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L174-L176)，则进入 **非受控模式**，由外部驱动状态。
+- 如果用户传入了 [expandedKeys](./useTree.ts#L174-L176)，则进入 **非受控模式**，由外部驱动状态。
 - 如果未传入，则进入 **受控模式**，由组件内部维护状态，并通过 `triggerRef` 触发更新。
 
 ```ts
@@ -1129,8 +1022,7 @@ return {
 };
 ```
 
-
-这些方法可以被 [VirtTree](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTree.tsx#L12-L155) 或其他组合函数引用并使用，例如：
+这些方法可以被 [VirtTree](./VirtTree.tsx#L12-L155) 或其他组合函数引用并使用，例如：
 
 ```ts
 const {
@@ -1155,13 +1047,12 @@ const {
 
 - ✅ 异步加载支持：允许在展开懒加载节点后再进行展开操作
 - 🔄 性能优化：对 `Array.from(expandedKeysSet)` 的频繁转换做缓存处理
-- 📈 提供 `getExpandedCount()` 获取当前展开数量
 
 ---
 
 ## 十、总结
 
-[useExpand](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useExpand.ts) 是一个高度封装且灵活的树形结构展开管理模块，其设计目标是：
+[useExpand](./useExpand.ts) 是一个高度封装且灵活的树形结构展开管理模块，其设计目标是：
 
 - ✅ 提供清晰的 API 接口
 - ✅ 支持多种使用场景（受控/非受控）
@@ -1170,13 +1061,15 @@ const {
 
 它是构建高效、可扩展的虚拟滚动树形组件的关键模块之一。
 
-# [useFilter](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useFilter.ts) 设计文档
+# [useFilter](./useFilter.ts) 设计文档
 
 ---
 
 ## 一、模块概述
 
-[useFilter](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useFilter.ts) 是 `virt-tree` 组件中用于实现树形结构**节点过滤与可视控制**的核心逻辑模块。它负责根据用户输入的查询条件动态隐藏/显示节点，并更新展开图标状态，以提升用户体验和界面清晰度。
+[useFilter](./useFilter.ts) 是 `virt-tree` 组件中用于实现树形结构**节点过滤与可视控制**的核心逻辑模块。
+
+它负责根据用户输入的查询条件动态隐藏/显示节点，并更新展开图标状态，以提升用户体验和界面清晰度。
 
 该模块支持自定义过滤函数，允许开发者灵活控制节点是否应被展示，并自动处理父子节点之间的可见性联动逻辑。
 
@@ -1185,7 +1078,7 @@ const {
 ## 二、核心能力
 
 ### ✅ 支持关键词过滤
-- 提供 [doFilter(query: string)](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useFilter.ts#L32-L93) 方法，支持按关键字进行模糊匹配。
+- 提供 [doFilter(query: string)](./useFilter.ts#L32-L93) 方法，支持按关键字进行模糊匹配。
 - 支持通过 `props.filterMethod` 自定义过滤规则。
 
 ### ✅ 节点可见性管理
@@ -1202,7 +1095,7 @@ const {
 
 ## 三、数据结构定义
 
-### 1. 类型定义（来自 [type.ts](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/type.ts)）
+### 1. 类型定义（来自 [type.ts](./type.ts)）
 
 ```ts
 export type TreeNodeKey = string | number;
@@ -1227,16 +1120,16 @@ export interface TreeNode<T = TreeNodeData> {
 
 | 变量名                  | 类型             | 描述                           |
 |-----------------------|------------------|--------------------------------|
-| [hiddenNodeKeySet](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useFilter.ts#L9-L9)         | `shallowRef<Set>` | 存储当前被隐藏的节点 key 集合     |
-| [hiddenExpandIconKeySet](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useFilter.ts#L10-L10)   | `shallowRef<Set>` | 存储需要强制隐藏展开图标的节点 key 集合 |
+| [hiddenNodeKeySet](./useFilter.ts#L9-L9)         | `shallowRef<Set>` | 存储当前被隐藏的节点 key 集合     |
+| [hiddenExpandIconKeySet](./useFilter.ts#L10-L10)   | `shallowRef<Set>` | 存储需要强制隐藏展开图标的节点 key 集合 |
 
 ---
 
 ## 四、主要函数说明
 
-### 1. 初始化方法 [useFilter](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useFilter.ts)
+### 1. 初始化方法 [useFilter](./useFilter.ts)
 
-```ts
+```text
 const useFilter = ({
   props,
   treeInfo,
@@ -1250,9 +1143,9 @@ const useFilter = ({
 
 
 #### 参数说明：
-- [props](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTreeNode.tsx#L95-L95): 树组件的配置属性，如 [filterMethod](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L184-L187)
-- [treeInfo](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L273-L279): 树结构信息，包含所有节点及层级关系
-- [virtListRef](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L255-L255): 引用虚拟滚动列表实例，用于触发滚动行为
+- [props](./VirtTreeNode.tsx#L95-L95): 树组件的配置属性，如 [filterMethod](./useTree.ts#L184-L187)
+- [treeInfo](./useTree.ts#L273-L279): 树结构信息，包含所有节点及层级关系
+- [virtListRef](./useTree.ts#L255-L255): 引用虚拟滚动列表实例，用于触发滚动行为
 
 ---
 
@@ -1260,8 +1153,8 @@ const useFilter = ({
 
 | 方法名                      | 功能描述                                                                 |
 |---------------------------|------------------------------------------------------------------------|
-| [doFilter](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useFilter.ts#L16-L73)       | 执行过滤操作，更新隐藏节点集合与展开图标集合，并触发视图更新                     |
-| [isForceHiddenExpandIcon](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useFilter.ts#L84-L86) | 判断某个节点是否应该强制隐藏展开图标                                           |
+| [doFilter](./useFilter.ts#L16-L73)       | 执行过滤操作，更新隐藏节点集合与展开图标集合，并触发视图更新                     |
+| [isForceHiddenExpandIcon](./useFilter.ts#L84-L86) | 判断某个节点是否应该强制隐藏展开图标                                           |
 
 ---
 
@@ -1366,7 +1259,7 @@ return {
 ```
 
 
-这些方法可以被 [VirtTree](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTree.tsx#L12-L155) 或其他组合函数引用并使用：
+这些方法可以被 [VirtTree](./VirtTree.tsx#L12-L155) 或其他组合函数引用并使用：
 
 ```ts
 const {
@@ -1383,7 +1276,7 @@ const {
 - 使用 `Set` 存储 keys，提升查找效率
 - 使用 `shallowRef` + `triggerRef` 控制响应式更新范围
 - 避免重复创建新数组，复用已有集合
-- 在大规模数据时对 [traverse](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useFilter.ts#L43-L87) 做节流或分批处理（注释中标明可能优化方向）
+- 在大规模数据时对 [traverse](./useFilter.ts#L43-L87) 做节流或分批处理（注释中标明可能优化方向）
 
 ---
 
@@ -1398,7 +1291,7 @@ const {
 
 ## 九、总结
 
-[useFilter](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useFilter.ts) 是一个高度封装且灵活的树形结构过滤模块，其设计目标是：
+[useFilter](./useFilter.ts) 是一个高度封装且灵活的树形结构过滤模块，其设计目标是：
 
 - ✅ 提供清晰的 API 接口
 - ✅ 支持多种使用场景（受控/非受控）
@@ -1407,13 +1300,15 @@ const {
 
 它是构建高效、可扩展的虚拟滚动树形组件的关键模块之一。
 
-# [useFocus](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useFocus.ts#L4-L23) 设计文档
+# [useFocus](./useFocus.ts#L4-L23) 设计文档
 
 ---
 
 ## 一、模块概述
 
-[useFocus](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useFocus.ts#L4-L23) 是 `virt-tree` 组件中用于管理**节点聚焦状态**的核心逻辑模块。它负责处理树形结构中节点的 **焦点控制** 和 **聚焦状态同步**，支持受控与非受控模式，并提供便捷的 API 查询当前节点是否处于聚焦状态。
+[useFocus](./useFocus.ts#L4-L23) 是 `virt-tree` 组件中用于管理**节点聚焦状态**的核心逻辑模块。
+
+它负责处理树形结构中节点的 **焦点控制** 和 **聚焦状态同步**，支持受控与非受控模式，并提供便捷的 API 查询当前节点是否处于聚焦状态。
 
 该模块设计目标是：
 
@@ -1436,13 +1331,13 @@ const {
 
 ### ✅ 响应式更新机制
 - 使用 Vue 的 `shallowRef` + `triggerRef` 实现高性能响应式更新。
-- 对 props 中的 [focusedKeys](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L212-L215) 进行监听，自动同步内部状态。
+- 对 props 中的 [focusedKeys](./useTree.ts#L212-L215) 进行监听，自动同步内部状态。
 
 ---
 
 ## 三、数据结构定义
 
-### 1. 类型定义（来自 [type.ts](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/type.ts)）
+### 1. 类型定义（来自 [type.ts](./type.ts)）
 
 ```ts
 export type TreeNodeKey = string | number;
@@ -1472,15 +1367,16 @@ export interface TreeNode<T = TreeNodeData> {
 
 ## 四、主要函数说明
 
-### 1. 初始化方法 [useFocus](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useFocus.ts#L4-L23)
+### 1. 初始化方法 [useFocus](./useFocus.ts#L4-L23)
 
-```ts
+```text
 const useFocus = ({ props }: { props: TreeProps }) => { ... }
 ```
 
 
 #### 参数说明：
-- [props](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTreeNode.tsx#L95-L95): 树组件的配置属性，如 [focusedKeys](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L204-L206)
+
+- [props](./VirtTreeNode.tsx#L95-L95): 树组件的配置属性，如 [focusedKeys](./useTree.ts#L204-L206)
 
 ---
 
@@ -1496,7 +1392,7 @@ const useFocus = ({ props }: { props: TreeProps }) => { ... }
 
 ### 1. 聚焦状态初始化与控制权切换
 
-- 如果用户传入了 [focusedKeys](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L204-L206)，则进入 **受控模式**，由外部驱动状态。
+- 如果用户传入了 [focusedKeys](./useTree.ts#L204-L206)，则进入 **受控模式**，由外部驱动状态。
 - 如果未传入，则进入 **非受控模式**，由组件内部维护状态。
 
 ```ts
@@ -1524,7 +1420,7 @@ return {
 ```
 
 
-这些方法可以被 [VirtTree](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTree.tsx#L12-L155) 或其他组合函数引用并使用，例如：
+这些方法可以被 [VirtTree](./VirtTree.tsx#L12-L155) 或其他组合函数引用并使用，例如：
 
 ```ts
 const {
@@ -1539,14 +1435,14 @@ const {
 
 - ✅ 支持键盘导航聚焦（上下键、Tab 键等）
 - ✅ 支持聚焦时触发事件（如 `focus`, `blur`）
-- ✅ 支持聚焦节点滚动到可视区域（结合 [scrollIntoView](file:///Users/longmo/WebstormProjects/vue-virt-list/lib/components/virt-list/index.js#L152-L177)）
+- ✅ 支持聚焦节点滚动到可视区域（结合 [scrollIntoView](vue-virt-list/lib/components/virt-list/index.js#L152-L177)）
 - 🔄 性能优化：对 `Array.from(focusedKeysSet)` 的频繁转换做缓存处理
 
 ---
 
 ## 八、总结
 
-[useFocus](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useFocus.ts#L4-L23) 是一个轻量级但功能完整的树形结构聚焦状态管理模块，其设计目标是：
+[useFocus](./useFocus.ts#L4-L23) 是一个轻量级但功能完整的树形结构聚焦状态管理模块，其设计目标是：
 
 - ✅ 提供清晰的 API 接口
 - ✅ 支持多种使用场景（受控/非受控）
@@ -1555,13 +1451,13 @@ const {
 它是构建高效、可交互的虚拟滚动树形组件的重要组成部分之一。
 
 
-# [useSelect](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useSelect.ts#L4-L127) 设计文档
+# [useSelect](./useSelect.ts#L4-L127) 设计文档
 
 ---
 
 ## 一、模块概述
 
-[useSelect](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useSelect.ts#L4-L127) 是 `virt-tree` 组件中用于管理**节点选中状态**的核心逻辑模块。它负责处理树形结构中节点的 **单选/多选** 操作，支持受控与非受控模式，并提供便捷的 API 查询当前节点是否处于选中状态。
+[useSelect](./useSelect.ts#L4-L127) 是 `virt-tree` 组件中用于管理**节点选中状态**的核心逻辑模块。它负责处理树形结构中节点的 **单选/多选** 操作，支持受控与非受控模式，并提供便捷的 API 查询当前节点是否处于选中状态。
 
 该模块设计目标是：
 
@@ -1577,7 +1473,7 @@ const {
 ### ✅ 支持选中状态管理
 - 使用 `Set<TreeNodeKey>` 存储当前选中的节点 key 集合。
 - 提供方法判断某个节点是否已选中。
-- 支持单选和多选模式切换（通过 [selectMultiple](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L185-L188) 控制）。
+- 支持单选和多选模式切换（通过 [selectMultiple](./useTree.ts#L185-L188) 控制）。
 
 ### ✅ 受控与非受控模式切换
 - 若用户传入了 `props.selectedKeys`，则进入 **受控模式**，由外部驱动状态。
@@ -1585,13 +1481,13 @@ const {
 
 ### ✅ 响应式更新机制
 - 使用 Vue 的 `shallowRef` + `triggerRef` 实现高性能响应式更新。
-- 对 props 中的 [selectedKeys](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L190-L193) 进行监听，自动同步内部状态。
+- 对 props 中的 [selectedKeys](./useTree.ts#L190-L193) 进行监听，自动同步内部状态。
 
 ---
 
 ## 三、数据结构定义
 
-### 1. 类型定义（来自 [type.ts](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/type.ts)）
+### 1. 类型定义（来自 [type.ts](./type.ts)）
 
 ```ts
 export type TreeNodeKey = string | number;
@@ -1620,7 +1516,7 @@ export interface TreeNode<T = TreeNodeData> {
 
 ## 四、主要函数说明
 
-### 1. 初始化方法 [useSelect](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useSelect.ts#L4-L127)
+### 1. 初始化方法 [useSelect](./useSelect.ts#L4-L127)
 
 ```ts
 const useSelect = ({
@@ -1638,10 +1534,10 @@ const useSelect = ({
 
 
 #### 参数说明：
-- [props](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTreeNode.tsx#L95-L95): 树组件的配置属性，如 [selectedKeys](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L190-L193)
-- [treeInfo](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L273-L279): 树结构信息，包含所有节点及层级关系
-- [emits](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTreeNode.tsx#L96-L96): 事件发射器，用于触发 `UPDATE_SELECTED_KEYS` 和 `NODE_SELECT` 事件
-- [getTreeNode](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L287-L289): 通过 key 获取节点对象的方法
+- [props](./VirtTreeNode.tsx#L95-L95): 树组件的配置属性，如 [selectedKeys](./useTree.ts#L190-L193)
+- [treeInfo](./useTree.ts#L273-L279): 树结构信息，包含所有节点及层级关系
+- [emits](./VirtTreeNode.tsx#L96-L96): 事件发射器，用于触发 `UPDATE_SELECTED_KEYS` 和 `NODE_SELECT` 事件
+- [getTreeNode](./useTree.ts#L287-L289): 通过 key 获取节点对象的方法
 
 ---
 
@@ -1661,7 +1557,7 @@ const useSelect = ({
 
 ### 1. 选中状态初始化与控制权切换
 
-- 如果用户传入了 [selectedKeys](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L190-L193)，则进入 **受控模式**，由外部驱动状态。
+- 如果用户传入了 [selectedKeys](./useTree.ts#L190-L193)，则进入 **受控模式**，由外部驱动状态。
 - 如果未传入，则进入 **非受控模式**，由组件内部维护状态。
 
 ```ts
@@ -1709,7 +1605,6 @@ const toggleSelect = (node: TreeNode) => {
   afterNodeSelect(node, !selected);
 };
 ```
-
 
 - 如果节点被禁用选择（`disableSelect === true`），则直接返回不处理。
 - 如果是多选模式（`selectMultiple === true`），则允许同时选中多个节点。
@@ -1840,8 +1735,7 @@ return {
 };
 ```
 
-
-这些方法可以被 [VirtTree](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTree.tsx#L12-L155) 或其他组合函数引用并使用，例如：
+这些方法可以被 [VirtTree](./VirtTree.tsx#L12-L155) 或其他组合函数引用并使用，例如：
 
 ```ts
 const {
@@ -1865,16 +1759,15 @@ const {
 
 ## 八、未来扩展建议
 
-- ✅ 支持键盘导航选中（上下键、空格选中等）
 - ✅ 支持范围选择（Shift 多选）
+- ✅ 支持设置和获取当前选中的节点
 - 🔄 性能优化：对 `Array.from(selectedKeysSet)` 的频繁转换做缓存处理
-- 📈 提供 `getSelectedCount()` 获取当前选中数量
 
 ---
 
 ## 九、总结
 
-[useSelect](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useSelect.ts#L4-L127) 是一个轻量级但功能完整的树形结构选中状态管理模块，其设计目标是：
+[useSelect](./useSelect.ts#L4-L127) 是一个轻量级但功能完整的树形结构选中状态管理模块，其设计目标是：
 
 - ✅ 提供清晰的 API 接口
 - ✅ 支持多种使用场景（受控/非受控，单选/多选）
@@ -1882,13 +1775,15 @@ const {
 
 它是构建高效、可交互的虚拟滚动树形组件的重要组成部分之一。
 
-# [useTree](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L249-L617) 设计文档
+# [useTree](./useTree.ts#L249-L617) 设计文档
 
 ## 一、模块概述
 
-[useTree](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L249-L617) 是 `virt-tree` 组件中用于构建和管理树形结构的核心逻辑模块。它负责将原始的扁平或嵌套数据转换为层级结构，并提供对节点状态（如展开、选中、勾选等）的统一管理。
+[useTree](./useTree.ts#L249-L617) 是 `virt-tree` 组件中用于构建和管理树形结构的核心逻辑模块。
 
-该模块是组合式函数架构的一部分，与 [useCheck](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useCheck.ts#L17-L409)、[useSelect](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useSelect.ts#L4-L127) 等模块协同工作，共同支撑整个树组件的功能体系。
+它负责将原始的扁平或嵌套数据转换为层级结构，并提供对节点状态（如展开、选中、勾选等）的统一管理。
+
+该模块是组合式函数架构的一部分，与 [useCheck](./useCheck.ts#L17-L409)、[useSelect](./useSelect.ts#L4-L127) 等模块协同工作，共同支撑整个树组件的功能体系。
 
 ---
 
@@ -1897,10 +1792,10 @@ const {
 ### ✅ 树结构构建
 - 支持从任意深度嵌套的 JSON 数据中生成完整的树形结构。
 - 自动计算层级（level）、是否为叶子节点（isLeaf）、是否为最后一个子节点（isLast）。
-- 提供 [getTreeNode(key)](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L287-L289) 方法快速访问指定节点。
+- 提供 [getTreeNode(key)](./useTree.ts#L287-L289) 方法快速访问指定节点。
 
 ### ✅ 渲染控制
-- 结合虚拟滚动组件 [VirtList](file:///Users/longmo/WebstormProjects/vue-virt-list/lib/components/virt-list/index.js#L571-L831) 实现高性能渲染。
+- 结合虚拟滚动组件 [VirtList](vue-virt-list/lib/components/virt-list/index.js#L571-L831) 实现高性能渲染。
 - 支持根据展开/折叠状态动态更新可视区域内的节点列表。
 - 支持隐藏被过滤或未展开的节点。
 
@@ -1910,14 +1805,14 @@ const {
 - 提供点击事件处理：展开图标、复选框、节点内容点击。
 
 ### ✅ 插件化扩展
-- 通过 [useCheck](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useCheck.ts#L17-L409), [useSelect](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useSelect.ts#L16-L140), [useExpand](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useExpand.ts#L18-L236), [useFilter](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useFilter.ts#L16-L105), [useFocus](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useFocus.ts#L4-L23), [useDrag](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L18-L586) 模块实现功能解耦。
+- 通过 [useCheck](./useCheck.ts#L17-L409), [useSelect](./useSelect.ts#L16-L140), [useExpand](./useExpand.ts#L18-L236), [useFilter](./useFilter.ts#L16-L105), [useFocus](./useFocus.ts#L4-L23), [useDrag](./useDrag.ts#L18-L586) 模块实现功能解耦。
 - 各模块只关注自身职责，降低耦合度，便于维护和扩展。
 
 ---
 
 ## 三、数据结构定义
 
-### 1. 类型定义（来自 [type.ts](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/type.ts)）
+### 1. 类型定义（来自 [type.ts](./type.ts)）
 
 ```ts
 export type TreeNodeKey = string | number;
@@ -1952,9 +1847,9 @@ export interface TreeNode<T = TreeNodeData> {
 
 ## 四、主要函数说明
 
-### 1. 初始化方法 [useTree](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L249-L617)
+### 1. 初始化方法 [useTree](./useTree.ts#L249-L617)
 
-```ts
+```text
 const useTree = (
   props: TreeProps,
   emits: SetupContext<typeof TreeEmits>['emit'],
@@ -1963,8 +1858,8 @@ const useTree = (
 
 
 #### 参数说明：
-- [props](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTreeNode.tsx#L95-L95): 组件配置项，包含树数据源、字段映射、是否可选、是否可拖拽等
-- [emits](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTreeNode.tsx#L96-L96): 事件发射器，用于触发各种交互事件（如 scroll、select、check 等）
+- [props](./VirtTreeNode.tsx#L95-L95): 组件配置项，包含树数据源、字段映射、是否可选、是否可拖拽等
+- [emits](./VirtTreeNode.tsx#L96-L96): 事件发射器，用于触发各种交互事件（如 scroll、select、check 等）
 
 ---
 
@@ -1972,7 +1867,7 @@ const useTree = (
 
 | 方法名              | 功能描述                                                                 |
 |-------------------|------------------------------------------------------------------------|
-| setTreeData        | 构建树结构，递归解析原始数据并生成 [treeNodesMap](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/type.ts#L29-L29) 和 [levelNodesMap](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/type.ts#L31-L31)          |
+| setTreeData        | 构建树结构，递归解析原始数据并生成 [treeNodesMap](./type.ts#L29-L29) 和 [levelNodesMap](./type.ts#L31-L31)          |
 | getTreeNode        | 获取指定 key 的节点对象                                                     |
 | scrollToTarget     | 将指定 key 的节点滚动到可视区域（支持 align 控制位置）                          |
 | scrollToBottom     | 滚动到底部                                                           |
@@ -1981,7 +1876,7 @@ const useTree = (
 | onClickExpandIcon  | 展开/折叠图标的点击事件处理                                                   |
 | onClickCheckbox    | 复选框点击事件处理                                                         |
 | onClickNodeContent | 节点内容点击事件处理                                                       |
-| filter             | 过滤节点（结合 [useFilter](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useFilter.ts#L16-L105) 实现）                                           |
+| filter             | 过滤节点（结合 [useFilter](./useFilter.ts#L16-L105) 实现）                                           |
 | forceUpdate        | 强制刷新树结构和虚拟列表                                                      |
 
 ---
@@ -2258,7 +2153,6 @@ const {
 - ✅ **异步加载支持**：允许在展开懒加载节点后再请求子节点数据
 - ✅ **权限控制**：根据 `disableSelect` / `disableCheckbox` 过滤不可操作节点
 - 🔄 **优化 renderList 性能**：对 `Array.from(renderList)` 的频繁转换做缓存
-- 📈 **提供快捷 API 获取统计信息**：如 `getNodeCount()`、`getExpandedCount()`、`getCheckedCount()`
 
 ---
 
@@ -2274,13 +2168,13 @@ const {
 它是构建高效、可交互、可定制化的虚拟滚动树形组件的关键模块之一。
 
 
-# [VirtTreeNode](file:///Users/longmo/WebstormProjects/vue-virt-list/lib/components/virt-tree/VirtTreeNode.js#L78-L242) 组件设计文档
+# [VirtTreeNode](vue-virt-list/lib/components/virt-tree/VirtTreeNode.js#L78-L242) 组件设计文档
 
 ## 一、组件概述
 
-[VirtTreeNode](file:///Users/longmo/WebstormProjects/vue-virt-list/lib/components/virt-tree/VirtTreeNode.js#L78-L242) 是 `virt-tree` 虚拟滚动树形组件中的**单个节点组件**，负责渲染一个树形结构中的具体节点，并处理与其相关的交互行为（如点击展开/收起、勾选、拖拽等）。
+[VirtTreeNode](vue-virt-list/lib/components/virt-tree/VirtTreeNode.js#L78-L242) 是 `virt-tree` 虚拟滚动树形组件中的**单个节点组件**，负责渲染一个树形结构中的具体节点，并处理与其相关的交互行为（如点击展开/收起、勾选、拖拽等）。
 
-它作为 [VirtTree](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTree.tsx) 的子组件存在，由虚拟滚动器 [VirtList](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-list/index.tsx) 渲染并管理生命周期。
+它作为 [VirtTree](./VirtTree.tsx) 的子组件存在，由虚拟滚动器 [VirtList](vue-virt-list/src/components/virt-list/index.tsx) 渲染并管理生命周期。
 
 ---
 
@@ -2298,12 +2192,12 @@ const {
 - 拖拽排序支持（可配置）
 
 ### ✅ 3. 状态控制
-- 当前是否展开 ([isExpanded](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L153-L153))
-- 是否被选中 ([isSelected](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTreeNode.tsx#L54-L57))
-- 是否被勾选 ([isChecked](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTreeNode.tsx#L67-L70))
-- 半选状态 ([isIndeterminate](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTreeNode.tsx#L71-L74))
-- 是否禁用勾选 ([disableCheckbox](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L34-L34))
-- 是否可拖拽 ([draggable](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L217-L220))
+- 当前是否展开 ([isExpanded](./useDrag.ts#L153-L153))
+- 是否被选中 ([isSelected](./VirtTreeNode.tsx#L54-L57))
+- 是否被勾选 ([isChecked](./VirtTreeNode.tsx#L67-L70))
+- 半选状态 ([isIndeterminate](./VirtTreeNode.tsx#L71-L74))
+- 是否禁用勾选 ([disableCheckbox](./useTree.ts#L34-L34))
+- 是否可拖拽 ([draggable](./useTree.ts#L217-L220))
 
 ---
 
@@ -2311,24 +2205,24 @@ const {
 
 | 属性名 | 类型 | 默认值 | 描述 |
 |--------|------|-------|------|
-| [node](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTreeNode.tsx#L9-L13) | [TreeNode](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/type.ts#L4-L16) | `{}` | 当前节点数据对象，包含层级信息、标题、key 等 |
-| [minSize](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L123-L126) | `number` | `32` | 节点最小高度 |
-| [fixed](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L128-L131) | `boolean` | `false` | 是否固定高度 |
-| [showLine](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L153-L156) | `boolean` | `false` | 是否显示连接线 |
-| [indent](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L132-L135) | `number` | `16` | 缩进像素数，用于层级展示 |
-| [iconSize](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L136-L139) | `number` | `16` | 展开图标的大小 |
-| [itemGap](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L140-L143) | `number` | `0` | 节点与上下元素之间的间距 |
-| [hiddenExpandIcon](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTreeNode.tsx#L40-L43) | `boolean` | `false` | 是否隐藏展开图标 |
-| [isExpanded](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L153-L153) | `boolean` | `false` | 当前节点是否已展开 |
-| [selectable](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L181-L184) | `boolean` | `false` | 是否可选中 |
-| [isSelected](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTreeNode.tsx#L54-L57) | `boolean` | `false` | 是否已被选中 |
-| [disableSelect](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L33-L33) | `boolean` | `false` | 是否禁用选中功能 |
-| [checkable](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L194-L197) | `boolean` | `false` | 是否可勾选 |
-| [isChecked](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTreeNode.tsx#L67-L70) | `boolean` | `false` | 是否已被勾选 |
-| [isIndeterminate](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTreeNode.tsx#L71-L74) | `boolean` | `false` | 是否为半选状态 |
-| [disableCheckbox](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L34-L34) | `boolean` | `false` | 是否禁用复选框 |
-| [isFocused](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTreeNode.tsx#L80-L83) | `boolean` | `false` | 是否获得焦点 |
-| [draggable](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L217-L220) | `boolean` | `false` | 是否可拖拽 |
+| [node](./VirtTreeNode.tsx#L9-L13) | [TreeNode](./type.ts#L4-L16) | `{}` | 当前节点数据对象，包含层级信息、标题、key 等 |
+| [minSize](./useTree.ts#L123-L126) | `number` | `32` | 节点最小高度 |
+| [fixed](./useTree.ts#L128-L131) | `boolean` | `false` | 是否固定高度 |
+| [showLine](./useTree.ts#L153-L156) | `boolean` | `false` | 是否显示连接线 |
+| [indent](./useTree.ts#L132-L135) | `number` | `16` | 缩进像素数，用于层级展示 |
+| [iconSize](./useTree.ts#L136-L139) | `number` | `16` | 展开图标的大小 |
+| [itemGap](./useTree.ts#L140-L143) | `number` | `0` | 节点与上下元素之间的间距 |
+| [hiddenExpandIcon](./VirtTreeNode.tsx#L40-L43) | `boolean` | `false` | 是否隐藏展开图标 |
+| [isExpanded](./useDrag.ts#L153-L153) | `boolean` | `false` | 当前节点是否已展开 |
+| [selectable](./useTree.ts#L181-L184) | `boolean` | `false` | 是否可选中 |
+| [isSelected](./VirtTreeNode.tsx#L54-L57) | `boolean` | `false` | 是否已被选中 |
+| [disableSelect](./useTree.ts#L33-L33) | `boolean` | `false` | 是否禁用选中功能 |
+| [checkable](./useTree.ts#L194-L197) | `boolean` | `false` | 是否可勾选 |
+| [isChecked](./VirtTreeNode.tsx#L67-L70) | `boolean` | `false` | 是否已被勾选 |
+| [isIndeterminate](./VirtTreeNode.tsx#L71-L74) | `boolean` | `false` | 是否为半选状态 |
+| [disableCheckbox](./useTree.ts#L34-L34) | `boolean` | `false` | 是否禁用复选框 |
+| [isFocused](./VirtTreeNode.tsx#L80-L83) | `boolean` | `false` | 是否获得焦点 |
+| [draggable](./useTree.ts#L217-L220) | `boolean` | `false` | 是否可拖拽 |
 
 ---
 
@@ -2339,7 +2233,7 @@ const {
 | `clickExpandIcon` | `(node: TreeNode)` | 点击展开图标时触发 |
 | `clickNodeContent` | `(node: TreeNode)` | 点击节点内容时触发 |
 | `clickCheckbox` | `(node: TreeNode)` | 点击复选框时触发 |
-| [dragstart](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts#L135-L175) | `(e: Event)` | 开始拖拽时触发 |
+| [dragstart](./useDrag.ts#L135-L175) | `(e: Event)` | 开始拖拽时触发 |
 
 ---
 
@@ -2394,7 +2288,7 @@ const {
 
 ### 1. 缩进与层级表示
 
-通过 `node.level` 和 [indent](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L132-L135) 计算缩进块数量和宽度，构建清晰的层级结构。例如：
+通过 `node.level` 和 [indent](./useTree.ts#L132-L135) 计算缩进块数量和宽度，构建清晰的层级结构。例如：
 
 ```ts
 for (let index = 0; index <= node.level - 2; index++) {
@@ -2422,7 +2316,9 @@ for (let index = 0; index <= node.level - 2; index++) {
 默认提供 SVG 箭头图标，支持自定义渲染：
 
 ```tsx
-const defaultIcon = _h(...);
+const defaultIcon = _h(
+  //...
+);
 const slotIcon = getSlot(this, 'icon') ? getSlot(this, 'icon')?.(node, isExpanded) : defaultIcon;
 ```
 
@@ -2476,7 +2372,7 @@ const slotContent = _h('div', {
 - 只在必要时触发更新，避免频繁重绘
 
 ### ✅ 虚拟滚动兼容性优化
-- 与 [VirtList](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-list/index.tsx) 高度配合，仅渲染可视区域内的节点
+- 与 [VirtList](vue-virt-list/src/components/virt-list/index.tsx) 高度配合，仅渲染可视区域内的节点
 
 ### ✅ ResizeObserver 监听
 - 对动态高度节点进行监听，确保布局正确
@@ -2528,10 +2424,6 @@ emits: ['clickExpandIcon', 'clickNodeContent', 'clickCheckbox', 'dragstart']
 ### ✅ 支持异步加载
 - 在 `node.isLeaf === false` 且未加载子节点时，允许点击后懒加载
 
-### ✅ 键盘导航支持
-- 支持键盘方向键切换节点
-- 支持回车键触发选中或展开
-
 ### ✅ 动画过渡
 - 添加展开/收起动画
 - 添加勾选/取消勾选动画
@@ -2555,11 +2447,11 @@ emits: ['clickExpandIcon', 'clickNodeContent', 'clickCheckbox', 'dragstart']
 它是构建高效、可扩展、用户友好的树形组件的核心单元之一。
 
 
-# [VirtTree](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTree.tsx#L12-L155) 组件设计文档
+# [VirtTree](./VirtTree.tsx#L12-L155) 组件设计文档
 
 ## 一、组件概述
 
-[VirtTree](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTree.tsx#L12-L155) 是一个基于 Vue 的虚拟滚动树形组件，旨在高效渲染大型树形结构数据。
+[VirtTree](./VirtTree.tsx#L12-L155) 是一个基于 Vue 的虚拟滚动树形组件，旨在高效渲染大型树形结构数据。
 
 它结合了 **虚拟滚动** 和 **树形结构** 的特性，实现高性能的层级数据展示与交互。
 
@@ -2610,14 +2502,14 @@ VirtTree
 
 | 文件名 | 功能 |
 |--------|------|
-| [VirtTree.tsx](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTree.tsx) | 根组件，负责接收 props 并调用 [useTree](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L249-L617) 初始化树结构，使用 [VirtList](file:///Users/longmo/WebstormProjects/vue-virt-list/lib/components/virt-list/index.js#L571-L831) 渲染可视节点。 |
-| [VirtTreeNode.tsx](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTreeNode.tsx) | 单个节点组件，处理点击、展开、勾选等交互行为。 |
-| [useTree.ts](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts) | 核心逻辑，构建树结构、管理节点状态、提供 API。 |
-| [useCheck.ts](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useCheck.ts) | 处理复选框逻辑，如全选、半选、父子联动。 |
-| [useSelect.ts](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useSelect.ts) | 处理节点选中状态。 |
-| [useExpand.ts](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useExpand.ts) | 控制节点展开/收起状态。 |
-| [useDrag.ts](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useDrag.ts) | 支持节点拖拽排序。 |
-| [type.ts](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/type.ts) | 定义类型，如 [TreeNode](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/type.ts#L4-L16), [TreeProps](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/useTree.ts#L247-L247) 等。 |
+| [VirtTree.tsx](./VirtTree.tsx) | 根组件，负责接收 props 并调用 [useTree](./useTree.ts#L249-L617) 初始化树结构，使用 [VirtList](vue-virt-list/lib/components/virt-list/index.js#L571-L831) 渲染可视节点。 |
+| [VirtTreeNode.tsx](./VirtTreeNode.tsx) | 单个节点组件，处理点击、展开、勾选等交互行为。 |
+| [useTree.ts](./useTree.ts) | 核心逻辑，构建树结构、管理节点状态、提供 API。 |
+| [useCheck.ts](./useCheck.ts) | 处理复选框逻辑，如全选、半选、父子联动。 |
+| [useSelect.ts](./useSelect.ts) | 处理节点选中状态。 |
+| [useExpand.ts](./useExpand.ts) | 控制节点展开/收起状态。 |
+| [useDrag.ts](./useDrag.ts) | 支持节点拖拽排序。 |
+| [type.ts](./type.ts) | 定义类型，如 [TreeNode](./type.ts#L4-L16), [TreeProps](./useTree.ts#L247-L247) 等。 |
 
 ---
 
@@ -2890,7 +2782,7 @@ const useTree = (props: TreeProps, emits: EmitFunction<TreeNode>) => {
 
 ## 十一、总结
 
-[VirtTree](file:///Users/longmo/WebstormProjects/vue-virt-list/src/components/virt-tree/VirtTree.tsx#L12-L155) 是一个高性能、可定制化的树形组件，适用于需要展示大量层级数据的场景。
+[VirtTree](./VirtTree.tsx#L12-L155) 是一个高性能、可定制化的树形组件，适用于需要展示大量层级数据的场景。
 
 其结合虚拟滚动与树形结构的优势，使得即使面对成百上千条数据也能保持流畅体验。
 
@@ -2903,3 +2795,263 @@ const useTree = (props: TreeProps, emits: EmitFunction<TreeNode>) => {
 - ✅ 可扩展性强：支持插槽、异步加载、键盘导航等高级功能。
 
 它是构建企业级管理系统、资源管理器、组织架构图等 UI 的理想选择。
+
+# **受控模式** 和 **非受控模式** 的优缺点和推荐使用场景
+
+在 Vue 组件开发中，**受控模式（Controlled Mode）** 和 **非受控模式（Uncontrolled Mode）** 是两种常见的状态管理方式。
+
+它们的核心区别在于：**组件内部状态是否由外部传入的 [props](vue-virt-list\docs\demos\advanced\Item.vue#L2-L13) 控制**。
+
+---
+
+## ✅ 受控模式（Controlled Mode）
+
+### 📌 定义
+组件的状态完全由外部传入的 [props](vue-virt-list\docs\demos\advanced\Item.vue#L2-L13) 控制，内部不维护自己的状态。例如通过 `v-model:checkedKeys="checkedKeys"` 传递值。
+
+### 🔍 特征
+- 使用 `props.checkedKeys` 来控制选中状态。
+- 内部状态变更时，会通过 `$emit` 或回调函数通知父组件更新。
+- 父组件必须响应这些事件并更新 [props](vue-virt-list\docs\demos\advanced\Item.vue#L2-L13) 值。
+
+### 💡 示例代码
+
+```ts
+const useCheck = ({ props }) => {
+  const checkedKeysSet = shallowRef(new Set(props.checkedKeys));
+}
+```
+
+
+### ⚖️ 优点
+| 优势 | 描述 |
+|------|------|
+| ✅ 状态集中管理 | 所有状态都由父组件或全局状态管理工具（如 Pinia）统一管理，便于调试和维护 |
+| ✅ 更容易与表单联动 | 适合用于表单提交、数据同步等需要精确控制状态的场景 |
+| ✅ 支持 SSR | 服务端渲染时可以正确初始化状态 |
+
+### ❌ 缺点
+| 劣势 | 描述 |
+|------|------|
+| 🧩 需要更多样板代码 | 父组件必须监听事件并手动更新状态 |
+| 🔄 性能开销可能更大 | 多次触发 `$emit` 和父组件重新渲染可能带来轻微性能损耗 |
+
+---
+
+## ✅ 非受控模式（Uncontrolled Mode）
+
+### 📌 定义
+组件内部自己维护状态，外部只需提供一个初始值（如 `defaultCheckedKeys`），之后的状态变化由组件自行处理。
+
+### 🔍 特征
+- 使用 `props.defaultCheckedKeys` 设置初始状态。
+- 组件内部使用 [ref](vue-virt-list\node_modules\.pnpm\@vue+reactivity@3.5.13\node_modules\@vue\reactivity\dist\reactivity.d.ts#L443-L443) 或响应式变量保存当前状态。
+- 不依赖外部传入的 [props](vue-virt-list\docs\demos\advanced\Item.vue#L2-L13) 更新状态。
+
+### 💡 示例代码
+
+```ts
+const useCheck = ({ props }) => {
+  const checkedKeysSet = shallowRef(
+    new Set(props.defaultCheckedKeys || [])
+  );
+}
+```
+
+
+### ⚖️ 优点
+| 优势 | 描述 |
+|------|------|
+| ✨ 使用简单 | 父组件只需传入初始值即可，无需监听和更新 |
+| 🚀 性能更优 | 减少了 `$emit` 和父组件响应逻辑，适用于轻量级交互 |
+| 🧱 快速实现功能 | 适合快速原型开发或小型项目 |
+
+### ❌ 缺点
+| 劣势 | 描述 |
+|------|------|
+| 🧠 状态分散管理 | 状态分布在多个子组件中，难以统一追踪和调试 |
+| 🧹 不利于表单集成 | 表单提交或重置时需要额外处理子组件状态 |
+| 🤖 不支持 SSR | 初始值设置后，后续状态无法通过服务端直接注入 |
+
+---
+
+## 🧪 对比总结表
+
+| 特性                | 受控模式                     | 非受控模式                   |
+|---------------------|------------------------------|------------------------------|
+| 是否由外部控制状态   | ✅ 是                         | ❌ 否                         |
+| 是否需要 `$emit`     | ✅ 是                         | ❌ 否                         |
+| 是否易于集成到表单中 | ✅ 是                         | ❌ 否                         |
+| 是否适合 SSR         | ✅ 是                         | ❌ 否                         |
+| 状态是否集中管理     | ✅ 是                         | ❌ 否                         |
+| 使用复杂度           | 较高                         | 较低                         |
+| 推荐用于             | 复杂业务系统、可配置组件       | 快速原型、独立小模块          |
+
+---
+
+## 📌 推荐使用场景
+
+### ✅ 推荐使用受控模式的情况：
+- 组件是某个表单的一部分，需要与其他字段联动；
+- 需要通过 Pinia/Vuex 进行全局状态管理；
+- 需要服务端渲染（SSR）支持；
+- 需要与其它组件共享状态（如父子联动选择）；
+- 需要进行自动化测试、状态快照等操作。
+
+### ✅ 推荐使用非受控模式的情况：
+- 组件仅用于展示，不需要与外部频繁交互；
+- 快速构建 MVP 或演示页面；
+- 组件本身状态变化频繁但不需要外部感知；
+- 不需要 SSR 或状态持久化；
+- 小型插件或 UI 库中的独立组件。
+
+---
+
+## 💡 最佳实践建议
+
+1. **默认使用受控模式**：除非你明确知道不需要外部控制状态，否则推荐使用受控模式以保持灵活性。
+2. **提供 `defaultXXX` 属性作为备选**：为简化使用，可同时支持 `v-model:checkedKeys` 和 `defaultCheckedKeys`。
+3. **区分内部状态与外部状态**：在组合式 API 中可通过 `innerMode` 标志判断当前是否处于受控模式。
+4. **结合响应式系统优化性能**：使用 `shallowRef + triggerRef` 控制精细更新范围，避免不必要的重渲染。
+
+---
+
+## 🧰 示例：如何判断当前是哪种模式？
+
+```ts
+let innerMode = false;
+
+if (props.checkedKeys !== undefined) {
+  // 受控模式
+  innerMode = false;
+} else {
+  // 非受控模式
+  innerMode = true;
+}
+```
+
+
+---
+
+## ✅ 总结
+
+| 模式       | 适用场景                          | 是否推荐 |
+|------------|-----------------------------------|----------|
+| 受控模式   | 表单、联动、状态管理、SSR、大型应用 | ✅ 推荐   |
+| 非受控模式 | 快速原型、独立 UI 组件              | ✅ 可用   |
+
+根据具体需求选择合适的方式，**受控模式更适合长期维护和扩展性强的项目，非受控模式则适合快速实现基础功能**。
+
+
+# isLeaf?: boolean; isLast?: boolean; 有何区别？
+
+在树形结构中，[isLeaf](./type.ts#L8-L8) 和 [isLast](./type.ts#L9-L9) 是两个用于描述节点特性的布尔属性，它们的用途和含义有明显区别：
+
+---
+
+### ✅ `isLeaf?: boolean`
+
+#### 含义：
+- 表示当前节点是否为**叶子节点（leaf node）**
+- **叶子节点**指的是没有子节点的节点
+
+#### 使用场景：
+- 通常用于判断该节点是否可以展开/折叠
+- 在 UI 上决定是否显示“展开图标”
+- 在复选框逻辑中影响父子联动选择
+
+#### 示例：
+```text
+{
+  key: '1',
+  title: 'Parent Node',
+  isLeaf: false,
+  children: [
+    {
+      key: '1-1',
+      title: 'Leaf Node',
+      isLeaf: true, // 没有 children，是叶子节点
+    }
+  ]
+}
+```
+
+
+---
+
+### ✅ `isLast?: boolean`
+
+#### 含义：
+- 表示当前节点在其父节点的子节点列表中是否是**最后一个节点**
+- 主要用于样式或布局控制，如连接线绘制、缩进等视觉效果
+
+#### 使用场景：
+- 控制树连接线的显示方式（例如最后一条子节点不画竖线）
+- 样式渲染时区分层级末尾节点
+
+#### 示例：
+```text
+{
+  key: '1',
+  title: 'Parent Node',
+  children: [
+    { key: '1-1', title: 'First Child', isLast: false },
+    { key: '1-2', title: 'Second Child', isLast: true }, // 最后一个子节点
+  ]
+}
+```
+
+
+---
+
+## 🧠 总结对比表
+
+| 属性       | 类型     | 含义                                 | 是否影响UI表现        | 是否参与数据逻辑 |
+|------------|----------|--------------------------------------|------------------------|------------------|
+| [isLeaf](./type.ts#L8-L8)   | 布尔值   | 当前节点是否是叶子节点（无子节点）     | ✅ 是（展开图标、勾选逻辑） | ✅ 是             |
+| [isLast](./type.ts#L9-L9)   | 布尔值   | 当前节点是否是其父节点下的最后一个子节点 | ✅ 是（连接线、缩进样式） | ❌ 否             |
+
+---
+
+## 📌 实际应用举例（来自你提供的项目）
+
+在 [VirtTreeNode.tsx](./VirtTreeNode.tsx#L135-L147) 中可以看到如下代码片段：
+
+```tsx
+'virt-tree-node-indent-block-line-vertical--half':
+  showLine && index === node.level - 2 && !!node.isLast && !isExpanded
+```
+
+
+这段代码表示：
+- 如果启用了连接线 ([showLine](./useTree.ts#L153-L156))
+- 并且当前是倒数第二个缩进块 (`index === node.level - 2`)
+- 且当前节点是最后一个子节点 (`node.isLast === true`)
+- 且当前节点未展开 (`!isExpanded`)
+- 则使用“半条线”样式来优化连接线显示
+
+---
+
+## ✅ 推荐命名建议
+
+如果希望更清晰表达语义，也可以考虑改名为：
+
+```text
+isLeaf -> hasChildren (取反：!hasChildren)
+isLast -> isLastChild
+```
+
+这样在某些业务逻辑中可读性更强。
+
+---
+
+## 📎 结论
+
+| 场景               | 使用属性     | 说明                             |
+|--------------------|--------------|----------------------------------|
+| 判断是否可展开     | [isLeaf](./type.ts#L8-L8)     | 叶子节点不可展开                 |
+| 显示连接线样式     | [isLast](./type.ts#L9-L9)     | 控制最后一项子节点的连线样式     |
+| 节点状态更新       | [isLeaf](./type.ts#L8-L8)     | 影响复选框父子联动               |
+| 缩进布局优化       | [isLast](./type.ts#L9-L9)     | 控制层级缩进视觉效果             |
+
+这两个属性配合使用，可以实现高度定制化的树形结构渲染。

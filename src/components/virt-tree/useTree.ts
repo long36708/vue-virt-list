@@ -16,7 +16,6 @@ import type {
   TreeData,
   TreeNodeKey,
   TreeFieldNames,
-  CheckedInfo,
   IScrollParams,
 } from './type';
 import { useCheck } from './useCheck';

@@ -19,7 +19,7 @@ export const treeNodeProps = {
   // 是否为固定高
   fixed: {
     type: Boolean,
-    default: false,
+    default: true,
   },
   showLine: {
     type: Boolean,
