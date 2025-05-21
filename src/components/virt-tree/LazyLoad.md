@@ -175,15 +175,25 @@ const treeData = [
 ];
 
 const loadMore = async (node) => {
-  // 模拟异步请求
-  const response = await fetch(`/api/tree/children?parentId=${node.key}`);
-  const children = await response.json();
+  // 模拟异步请求的 mock 数据
+  const mockChildren = [
+    { id: `${node.key}-1`, name: `Child 1 of ${node.key}`, hasChildren: false },
+    { id: `${node.key}-2`, name: `Child 2 of ${node.key}`, hasChildren: true },
+    { id: `${node.key}-3`, name: `Child 3 of ${node.key}`, hasChildren: false }
+  ];
 
-  return children.map(child => ({
-    title: child.name,
-    key: child.id,
-    isLeaf: !child.hasChildren,
-  }));
+  // 模拟延迟加载效果
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(
+        mockChildren.map(child => ({
+          title: child.name,
+          key: child.id,
+          isLeaf: !child.hasChildren,
+        }))
+      );
+    }, 500); // 延迟500毫秒
+  });
 };
 </script>
 ```

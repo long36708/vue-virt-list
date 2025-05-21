@@ -165,6 +165,10 @@ type Props = {
 
 <!<< @/demos/tree/DragList.vue
 
+## lazy tree
+
+<!<< @/demos/tree/LazyTree.vue
+
 ## css variable
 
 ```css

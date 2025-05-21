@@ -242,6 +242,10 @@ export const customFieldNames = {
   //   >,
   //   default: () => true,
   // },
+
+  loadMore:{
+    type: Function as PropType<(node: TreeNodeData) => Promise<TreeNodeData>>,
+  },
 };
 
 export type TreeProps = ExtractPropTypes<typeof customFieldNames>;
@@ -302,7 +306,7 @@ export const useTree = (
         const children = getChildren(rawNode);
         const disableSelect = getDisableSelect(rawNode);
         const disableCheckbox = getDisableCheckbox(rawNode);
-        const node: TreeNode = {
+        let node: TreeNode = {
           data: rawNode,
           key,
           parent,
@@ -313,6 +317,14 @@ export const useTree = (
           isLeaf: !children || children.length === 0,
           isLast: index === nodes.length,
         };
+
+        // todo
+        node = {
+          ...node,
+          isLoaded: false,
+          isLoading: false,
+          isLeaf: false,
+        }
         if (children && children.length) {
           node.children = flat(children, level + 1, node);
           parentNodeKeys.push(node.key);
@@ -438,7 +450,13 @@ export const useTree = (
 
   const onClickExpandIcon = (node: TreeNode) => {
     if (dragging.value) return;
-    toggleExpand(node);
+    if (!node.isLeaf && !node.isLoaded && props.loadMore) {
+      loadMore(node).then(() => {
+        toggleExpand(node);
+      });
+    } else {
+      toggleExpand(node);
+    }
   };
   const onClickCheckbox = (node: TreeNode, e: Event) => {
     if (dragging.value) return;
@@ -541,6 +559,32 @@ export const useTree = (
     renderKey.value += 1;
   }
 
+  const loadMore = async (node: TreeNode) => {
+    if (node.isLeaf || node.isLoaded || node.isLoading) return;
+
+    node.isLoading = true;
+
+    try {
+      const children = await props?.loadMore(node); // 用户传入的异步加载函数
+      node.children = children.map(child => ({
+        ...child,
+        level: node.level + 1,
+        parent: node,
+        isLeaf: !child.children?.length,
+        isLoaded: false,
+        isLoading: false,
+      }));
+
+      node.isLoaded = true;
+    } catch (e) {
+      console.error('Failed to load children:', e);
+    } finally {
+      node.isLoading = false;
+    }
+
+    virtListRef.value?.forceUpdate();
+  };
+
   watch(
     () => renderKey.value,
     () => {
@@ -613,5 +657,6 @@ export const useTree = (
     onToBottom,
     onItemResize,
     onRangeUpdate,
-  };
+
+  }
 };

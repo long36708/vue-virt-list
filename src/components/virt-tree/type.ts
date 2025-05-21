@@ -14,6 +14,8 @@ export interface TreeNode<T = TreeNodeData> {
   disableCheckbox?: boolean;
   searchedIndex?: number;
   data: T;
+  isLoaded?: boolean; // 是否已加载过子节点
+  isLoading?: boolean; // 是否正在加载子节点
 }
 
 export interface TreeFieldNames {
