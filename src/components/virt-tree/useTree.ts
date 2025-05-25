@@ -291,6 +291,31 @@ export const useTree = (
     return treeInfo.treeNodesMap.get(String(key));
   }
 
+  function generateTreeNode(
+    rawNode: TreeNodeData,
+    parent?: TreeNode,
+    level: number = 1,
+  ) {
+    const key = getKey(rawNode);
+    const title = getTitle(rawNode);
+    const children = getChildren(rawNode);
+    const disableSelect = getDisableSelect(rawNode);
+    const disableCheckbox = getDisableCheckbox(rawNode);
+    let node: TreeNode = {
+      data: rawNode,
+      key,
+      parent,
+      level,
+      title,
+      disableSelect,
+      disableCheckbox,
+      isLeaf: !!rawNode.isLeaf,
+      // isLeaf: !children || children.length === 0,
+      // isLast: index === nodes.length,
+    };
+    return node;
+  }
+
   const setTreeData = (list: TreeData) => {
     debugger;
     const levelNodesMap = new Map<TreeNodeKey, TreeNode[]>();
@@ -302,21 +327,8 @@ export const useTree = (
       for (const rawNode of nodes) {
         index++;
         const key = getKey(rawNode);
-        const title = getTitle(rawNode);
         const children = getChildren(rawNode);
-        const disableSelect = getDisableSelect(rawNode);
-        const disableCheckbox = getDisableCheckbox(rawNode);
-        let node: TreeNode = {
-          data: rawNode,
-          key,
-          parent,
-          level,
-          title,
-          disableSelect,
-          disableCheckbox,
-          // isLeaf: !children || children.length === 0,
-          // isLast: index === nodes.length,
-        };
+        let node: TreeNode = generateTreeNode(rawNode, parent, level);
 
         // todo
         if (props.loadNode) {
@@ -325,6 +337,7 @@ export const useTree = (
             isLoaded: node.isLoaded ?? false,
             isLoading: false,
             isLeaf: node.isLeaf ?? false,
+            isLast: index === nodes.length,
           };
         } else {
           node = {
@@ -583,14 +596,18 @@ export const useTree = (
         virtListRef.value?.forceUpdate();
         return;
       }
-      node.children = children.map((child: TreeNodeData) => ({
-        ...child,
-        level: node.level + 1,
-        parent: node,
-        isLeaf: !!child.isLeaf,
-        isLoaded: false,
-        isLoading: false,
-      }));
+      node.children = children.map((child: TreeNodeData, index: number) => {
+        const childNode = generateTreeNode(child, node, node.level + 1);
+        parentNodeKeys.push(childNode.key);
+        debugger;
+        return {
+          ...childNode,
+          // isLeaf: !!child.isLeaf,
+          isLoaded: false,
+          isLoading: false,
+          isLast: index === children.length,
+        };
+      });
 
       node.isLoaded = true;
     } catch (e) {
@@ -599,9 +616,27 @@ export const useTree = (
       node.isLoading = false;
     }
     // forceUpdate();
-    const key = getKey(node);
+    const rawData = node.data;
+    const key = getKey(rawData);
     setTreeNode(key, node);
     treeInfo.allNodeKeys.push(key);
+    // 刷新层级
+    let level = node.level;
+    let { maxLevel, levelNodesMap } = treeInfo;
+    if (level > maxLevel) {
+      maxLevel = level;
+    }
+    const levelInfo = levelNodesMap.get(level);
+    if (levelInfo) {
+      levelInfo.push(node);
+    }
+    levelNodesMap.set(level, [node]);
+    treeInfo.levelNodesMap = levelNodesMap;
+    treeInfo.maxLevel = maxLevel;
+
+    // 刷新勾选项
+    checkNode(key, hasChecked(node));
+    // 刷新视图
     virtListRef.value?.forceUpdate();
   };
 
