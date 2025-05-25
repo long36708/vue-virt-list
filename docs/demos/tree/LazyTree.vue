@@ -27,10 +27,8 @@ const loadMore = async (node: any): Promise<any[]> => {
     { id: `${node.key}-2`, name: `Child 2 of ${node.key}`, hasChildren: true },
     { id: `${node.key}-3`, name: `Child 3 of ${node.key}`, hasChildren: false },
   ];
-  debugger;
   if (node.key === 'lazy-1') {
     // 模拟延迟加载效果
-    debugger;
     return new Promise((resolve) => {
       setTimeout(() => {
         // const list = mockChildren.map((child) => ({

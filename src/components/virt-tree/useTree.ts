@@ -317,7 +317,6 @@ export const useTree = (
   }
 
   const setTreeData = (list: TreeData) => {
-    debugger;
     const levelNodesMap = new Map<TreeNodeKey, TreeNode[]>();
 
     let maxLevel = 1;
@@ -471,7 +470,6 @@ export const useTree = (
 
   const onClickExpandIcon = (node: TreeNode) => {
     if (dragging.value) return;
-    debugger;
     if (!node.isLeaf && !node.isLoaded && props.loadNode) {
       loadMore(node).then(() => {
         toggleExpand(node);
@@ -592,14 +590,12 @@ export const useTree = (
       const children = await props?.loadNode?.(node); // 用户传入的异步加载函数
       if (!children || children.length === 0) {
         node.isLeaf = true;
-        debugger;
         virtListRef.value?.forceUpdate();
         return;
       }
       node.children = children.map((child: TreeNodeData, index: number) => {
         const childNode = generateTreeNode(child, node, node.level + 1);
         parentNodeKeys.push(childNode.key);
-        debugger;
         return {
           ...childNode,
           // isLeaf: !!child.isLeaf,
