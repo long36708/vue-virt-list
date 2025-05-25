@@ -427,6 +427,7 @@ export const useTree = (
     toggleCheckbox,
     checkAll,
     checkNode,
+    getCheckedKeys,
   } = useCheck({
     props,
     treeInfo,
@@ -630,10 +631,10 @@ export const useTree = (
     treeInfo.levelNodesMap = levelNodesMap;
     treeInfo.maxLevel = maxLevel;
 
-    // 刷新勾选项
-    checkNode(key, hasChecked(node));
     // 刷新视图
     virtListRef.value?.forceUpdate();
+    // 刷新勾选项
+    checkNode(key, hasChecked(node));
   };
 
   watch(
@@ -693,6 +694,7 @@ export const useTree = (
     hasIndeterminate,
     checkAll,
     checkNode,
+    getCheckedKeys,
 
     // focus
     hasFocused,
