@@ -291,3 +291,17 @@ html.dark .virt-tree-item {
   background: var(--virt-tree-color-checkbox-bg-disabled);
   border-color: #d9d9d9;
 }
+
+.virt-tree-icon-wrapper.is-loading .virt-tree-icon svg{
+  animation: rotating 2s linear infinite !important; /* 循环旋转动画 */
+  transform-origin: center;
+}
+
+@keyframes rotating {
+  0% {
+    transform: rotateZ(0deg);
+  }
+  100% {
+    transform: rotateZ(360deg);
+  }
+}

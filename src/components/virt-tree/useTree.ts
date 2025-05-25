@@ -242,8 +242,7 @@ export const customFieldNames = {
   //   >,
   //   default: () => true,
   // },
-
-  loadMore:{
+  loadNode: {
     type: Function as PropType<(node: TreeNodeData) => Promise<TreeNodeData>>,
   },
 };
@@ -293,6 +292,7 @@ export const useTree = (
   }
 
   const setTreeData = (list: TreeData) => {
+    debugger;
     const levelNodesMap = new Map<TreeNodeKey, TreeNode[]>();
 
     let maxLevel = 1;
@@ -314,16 +314,24 @@ export const useTree = (
           title,
           disableSelect,
           disableCheckbox,
-          isLeaf: !children || children.length === 0,
-          isLast: index === nodes.length,
+          // isLeaf: !children || children.length === 0,
+          // isLast: index === nodes.length,
         };
 
         // todo
-        node = {
-          ...node,
-          isLoaded: false,
-          isLoading: false,
-          isLeaf: false,
+        if (props.loadNode) {
+          node = {
+            ...node,
+            isLoaded: node.isLoaded ?? false,
+            isLoading: false,
+            isLeaf: node.isLeaf ?? false,
+          };
+        } else {
+          node = {
+            ...node,
+            isLeaf: !children || children.length === 0,
+            isLast: index === nodes.length,
+          };
         }
         if (children && children.length) {
           node.children = flat(children, level + 1, node);
@@ -450,7 +458,8 @@ export const useTree = (
 
   const onClickExpandIcon = (node: TreeNode) => {
     if (dragging.value) return;
-    if (!node.isLeaf && !node.isLoaded && props.loadMore) {
+    debugger;
+    if (!node.isLeaf && !node.isLoaded && props.loadNode) {
       loadMore(node).then(() => {
         toggleExpand(node);
       });
@@ -565,12 +574,20 @@ export const useTree = (
     node.isLoading = true;
 
     try {
-      const children = await props?.loadMore(node); // 用户传入的异步加载函数
-      node.children = children.map(child => ({
+      // 刷新视图
+      virtListRef.value?.forceUpdate();
+      const children = await props?.loadNode?.(node); // 用户传入的异步加载函数
+      if (!children || children.length === 0) {
+        node.isLeaf = true;
+        debugger;
+        virtListRef.value?.forceUpdate();
+        return;
+      }
+      node.children = children.map((child: TreeNodeData) => ({
         ...child,
         level: node.level + 1,
         parent: node,
-        isLeaf: !child.children?.length,
+        isLeaf: !!child.isLeaf,
         isLoaded: false,
         isLoading: false,
       }));
@@ -581,7 +598,10 @@ export const useTree = (
     } finally {
       node.isLoading = false;
     }
-
+    // forceUpdate();
+    const key = getKey(node);
+    setTreeNode(key, node);
+    treeInfo.allNodeKeys.push(key);
     virtListRef.value?.forceUpdate();
   };
 
@@ -657,6 +677,5 @@ export const useTree = (
     onToBottom,
     onItemResize,
     onRangeUpdate,
-
-  }
+  };
 };

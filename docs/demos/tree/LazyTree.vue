@@ -2,6 +2,11 @@
 import { VirtTree } from 'vue-virt-list';
 import 'vue-virt-list/lib/assets/tree.css';
 import { shallowRef } from 'vue-demi';
+type Data = {
+  id: string | number;
+  title: string;
+  children?: Data;
+}[];
 
 const treeData = shallowRef([
   {
@@ -11,8 +16,7 @@ const treeData = shallowRef([
   },
 ]);
 
-const loadMore = async (node) => {
-  debugger;
+const loadMore = async (node: any): Promise<any[]> => {
   // 模拟异步请求的 mock 数据
   const mockChildren = [
     { id: `${node.key}-1`, name: `Child 1 of ${node.key}`, hasChildren: false },
@@ -20,22 +24,37 @@ const loadMore = async (node) => {
     { id: `${node.key}-3`, name: `Child 3 of ${node.key}`, hasChildren: false },
   ];
 
-  // 模拟延迟加载效果
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(
-        mockChildren.map((child) => ({
+  if (node.key === 'lazy-1') {
+    // 模拟延迟加载效果
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const list = mockChildren.map((child) => ({
           title: child.name,
           key: child.id,
           isLeaf: !child.hasChildren,
-        })),
-      );
-    }, 500); // 延迟500毫秒
-  });
+        }));
+
+        // treeData.value.push(...list);
+        resolve(list);
+      }, 500); // 延迟500毫秒
+    });
+  }
+  if (node.key === 'lazy-1-2') {
+    const list = [
+      {
+        title: 'Lazy Child',
+        key: 'lazy-1-2-1',
+        isLeaf: true,
+      },
+    ];
+    // treeData.value.push(...list);
+    return list;
+  }
+  return [];
 };
 
-function handleClick(node) {
-  console.log(node);
+function handleClick(keys: string[], data: Data) {
+  console.log(keys, data);
 }
 </script>
 
@@ -44,9 +63,11 @@ function handleClick(node) {
     <div class="virt-tree-wrapper">
       <VirtTree
         :list="treeData"
-        :load-more="loadMore"
+        :load-node="loadMore"
         selectable
         @select="handleClick"
+        checkable
+        :defaultExpandAll="false"
       />
     </div>
   </div>
