@@ -10,8 +10,8 @@ export declare const useExpand: ({ props, virtListRef, parentNodeKeys, getTreeNo
     emits: SetupContext<typeof TreeEmits>['emit'];
 }) => {
     hasExpanded: (node: TreeNode) => boolean;
-    setExpandedKeys: () => void;
+    setExpandedKeys: (keys?: TreeNodeKey[] | undefined) => void;
     toggleExpand: (node: TreeNode) => void;
-    expandNode: (key: TreeNodeKey | TreeNodeKey[], expanded: boolean) => void;
+    expandNode: (key: TreeNodeKey | TreeNodeKey[], expanded: boolean, foldAllNodes?: boolean) => void;
     expandAll: (expanded: boolean) => void;
 };

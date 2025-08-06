@@ -6,3 +6,5 @@ export { RealList } from './components/real-list';
 export { VirtGrid } from './components/virt-grid';
 export * from './components/virt-tree/type';
 export { VirtTree } from './components/virt-tree';
+export * from './components/virt-list-transfer/type';
+export { default as VirtListTransfer } from './components/virt-list-transfer';

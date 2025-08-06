@@ -22,4 +22,17 @@ declare function vue2h2Slot<P>(ele: Component<Readonly<P extends ComponentPropsO
 export declare const _h2Slot: typeof vue2h2Slot;
 declare function vue2getSlot(_ctx: any, name: string): any;
 export declare const getSlot: typeof vue2getSlot;
+export type StyleType = string | Array<string | {
+    [key: string]: any;
+}> | {
+    [key: string]: any;
+};
+export declare function mergeStyles(...styles: StyleType[]): string;
+export type ClassType = string | Array<string> | {
+    [key: string]: boolean;
+};
+export declare function mergeClasses(...classes: ClassType[]): string;
+export declare const isUndefined: (val: any) => val is undefined;
+export declare const isBoolean: (val: any) => val is boolean;
+export declare const isNumber: (val: any) => val is number;
 export {};

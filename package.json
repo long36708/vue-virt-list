@@ -72,5 +72,8 @@
   "directories": {
     "docs": "docs",
     "lib": "lib"
+  },
+  "volta": {
+    "node": "20.19.4"
   }
 }

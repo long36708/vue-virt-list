@@ -1,0 +1,345 @@
+import { type VNode } from 'vue-demi';
+import type { TransferItem } from './type.js';
+import './transfer.css';
+declare const _default: import("vue-demi").DefineComponent<{
+    dataSource: TransferItem[];
+    targetKeys: string[];
+    selectedKeys: string[];
+    titles: string[];
+    operations: string[];
+    showSearch?: boolean | undefined;
+    showSelectAll?: boolean | undefined;
+    filterOption?: ((inputValue: string, item: TransferItem) => boolean) | undefined;
+    searchPlaceholder?: string | undefined;
+    notFoundContent?: string | undefined;
+    itemHeight?: number | undefined;
+    itemGap?: number | undefined;
+    buffer?: number | undefined;
+    listStyle?: import("../../utils").StyleType | (() => import("../../utils").StyleType) | undefined;
+    listClass?: import("../../utils").ClassType | (() => import("../../utils").ClassType) | undefined;
+    itemStyle?: import("../../utils").StyleType | ((item: TransferItem, index: number) => import("../../utils").StyleType) | undefined;
+    itemClass?: import("../../utils").ClassType | ((item: TransferItem, index: number) => import("../../utils").ClassType) | undefined;
+    headerStyle?: import("../../utils").StyleType | (() => import("../../utils").StyleType) | undefined;
+    headerClass?: import("../../utils").ClassType | (() => import("../../utils").ClassType) | undefined;
+    footerStyle?: import("../../utils").StyleType | (() => import("../../utils").StyleType) | undefined;
+    footerClass?: import("../../utils").ClassType | (() => import("../../utils").ClassType) | undefined;
+    disabled?: boolean | undefined;
+    oneWay?: boolean | undefined;
+    pagination?: boolean | Record<string, any> | undefined;
+    showSize?: boolean | undefined;
+    size?: "default" | "small" | "large" | undefined;
+}, () => VNode<import("vue-demi").RendererNode, import("vue-demi").RendererElement, {
+    [key: string]: any;
+}>, {}, {}, {}, import("vue-demi").ComponentOptionsMixin, import("vue-demi").ComponentOptionsMixin, {}, "change" | "scroll" | "search" | "selectChange" | "update:targetKeys" | "update:selectedKeys", import("vue-demi").PublicProps, Readonly<{
+    dataSource: TransferItem[];
+    targetKeys: string[];
+    selectedKeys: string[];
+    titles: string[];
+    operations: string[];
+    showSearch?: boolean | undefined;
+    showSelectAll?: boolean | undefined;
+    filterOption?: ((inputValue: string, item: TransferItem) => boolean) | undefined;
+    searchPlaceholder?: string | undefined;
+    notFoundContent?: string | undefined;
+    itemHeight?: number | undefined;
+    itemGap?: number | undefined;
+    buffer?: number | undefined;
+    listStyle?: import("../../utils").StyleType | (() => import("../../utils").StyleType) | undefined;
+    listClass?: import("../../utils").ClassType | (() => import("../../utils").ClassType) | undefined;
+    itemStyle?: import("../../utils").StyleType | ((item: TransferItem, index: number) => import("../../utils").StyleType) | undefined;
+    itemClass?: import("../../utils").ClassType | ((item: TransferItem, index: number) => import("../../utils").ClassType) | undefined;
+    headerStyle?: import("../../utils").StyleType | (() => import("../../utils").StyleType) | undefined;
+    headerClass?: import("../../utils").ClassType | (() => import("../../utils").ClassType) | undefined;
+    footerStyle?: import("../../utils").StyleType | (() => import("../../utils").StyleType) | undefined;
+    footerClass?: import("../../utils").ClassType | (() => import("../../utils").ClassType) | undefined;
+    disabled?: boolean | undefined;
+    oneWay?: boolean | undefined;
+    pagination?: boolean | Record<string, any> | undefined;
+    showSize?: boolean | undefined;
+    size?: "default" | "small" | "large" | undefined;
+}> & Readonly<{}>, {
+    size: string;
+    buffer: number;
+    listStyle: string | Record<string, any>;
+    listClass: string | Record<string, any> | unknown[];
+    itemStyle: string | Function | Record<string, any>;
+    itemClass: string | Function | Record<string, any> | unknown[];
+    itemGap: number;
+    headerClass: string | Record<string, any> | unknown[];
+    headerStyle: string | Record<string, any>;
+    footerClass: string | Record<string, any> | unknown[];
+    footerStyle: string | Record<string, any>;
+    disabled: boolean;
+    dataSource: unknown[];
+    targetKeys: unknown[];
+    selectedKeys: unknown[];
+    titles: unknown[];
+    operations: unknown[];
+    showSearch: boolean;
+    showSelectAll: boolean;
+    filterOption: Function;
+    searchPlaceholder: string;
+    notFoundContent: string;
+    itemHeight: number;
+    oneWay: boolean;
+    pagination: boolean | Record<string, any>;
+    showSize: boolean;
+}, {}, {
+    VirtList: import("vue-demi").DefineComponent<import("vue-demi").ExtractPropTypes<{
+        list: {
+            type: {
+                (arrayLength: number): any[];
+                (...items: any[]): any[];
+                new (arrayLength: number): any[];
+                new (...items: any[]): any[];
+                isArray(arg: any): arg is any[];
+                readonly prototype: any[];
+                from<T>(arrayLike: ArrayLike<T>): T[];
+                from<T_1, U>(arrayLike: ArrayLike<T_1>, mapfn: (v: T_1, k: number) => U, thisArg?: any): U[];
+                from<T_2>(iterable: Iterable<T_2> | ArrayLike<T_2>): T_2[];
+                from<T_3, U_1>(iterable: Iterable<T_3> | ArrayLike<T_3>, mapfn: (v: T_3, k: number) => U_1, thisArg?: any): U_1[];
+                of<T_4>(...items: T_4[]): T_4[];
+                readonly [Symbol.species]: ArrayConstructor;
+            };
+            default: () => never[];
+        };
+        itemKey: {
+            type: (StringConstructor | NumberConstructor)[];
+            required: true;
+        };
+        minSize: {
+            type: NumberConstructor;
+            default: number;
+            required: true;
+        };
+        itemGap: {
+            type: NumberConstructor;
+            default: number;
+        };
+        renderControl: {
+            type: FunctionConstructor;
+            default: undefined;
+        };
+        fixed: {
+            type: BooleanConstructor;
+            default: boolean;
+        };
+        buffer: {
+            type: NumberConstructor;
+            default: number;
+        };
+        bufferTop: {
+            type: NumberConstructor;
+            default: number;
+        };
+        bufferBottom: {
+            type: NumberConstructor;
+            default: number;
+        };
+        scrollDistance: {
+            type: NumberConstructor;
+            default: number;
+        };
+        horizontal: {
+            type: BooleanConstructor;
+            default: boolean;
+        };
+        start: {
+            type: NumberConstructor;
+            default: number;
+        };
+        offset: {
+            type: NumberConstructor;
+            default: number;
+        };
+        listStyle: {
+            type: (ObjectConstructor | ArrayConstructor | StringConstructor)[];
+            default: string;
+        };
+        listClass: {
+            type: (ObjectConstructor | ArrayConstructor | StringConstructor)[];
+            default: string;
+        };
+        itemStyle: {
+            type: (ObjectConstructor | ArrayConstructor | StringConstructor | FunctionConstructor)[];
+            default: string;
+        };
+        itemClass: {
+            type: (ObjectConstructor | ArrayConstructor | StringConstructor | FunctionConstructor)[];
+            default: string;
+        };
+        headerClass: {
+            type: (ObjectConstructor | ArrayConstructor | StringConstructor)[];
+            default: string;
+        };
+        headerStyle: {
+            type: (ObjectConstructor | ArrayConstructor | StringConstructor)[];
+            default: string;
+        };
+        footerClass: {
+            type: (ObjectConstructor | ArrayConstructor | StringConstructor)[];
+            default: string;
+        };
+        footerStyle: {
+            type: (ObjectConstructor | ArrayConstructor | StringConstructor)[];
+            default: string;
+        };
+        stickyHeaderClass: {
+            type: (ObjectConstructor | ArrayConstructor | StringConstructor)[];
+            default: string;
+        };
+        stickyHeaderStyle: {
+            type: (ObjectConstructor | ArrayConstructor | StringConstructor)[];
+            default: string;
+        };
+        stickyFooterClass: {
+            type: (ObjectConstructor | ArrayConstructor | StringConstructor)[];
+            default: string;
+        };
+        stickyFooterStyle: {
+            type: (ObjectConstructor | ArrayConstructor | StringConstructor)[];
+            default: string;
+        };
+    }>, import("../virt-list/type.js").VirtListReturn<any>, {}, {}, {}, import("vue-demi").ComponentOptionsMixin, import("vue-demi").ComponentOptionsMixin, {}, string, import("vue-demi").PublicProps, Readonly<import("vue-demi").ExtractPropTypes<{
+        list: {
+            type: {
+                (arrayLength: number): any[];
+                (...items: any[]): any[];
+                new (arrayLength: number): any[];
+                new (...items: any[]): any[];
+                isArray(arg: any): arg is any[];
+                readonly prototype: any[];
+                from<T>(arrayLike: ArrayLike<T>): T[];
+                from<T_1, U>(arrayLike: ArrayLike<T_1>, mapfn: (v: T_1, k: number) => U, thisArg?: any): U[];
+                from<T_2>(iterable: Iterable<T_2> | ArrayLike<T_2>): T_2[];
+                from<T_3, U_1>(iterable: Iterable<T_3> | ArrayLike<T_3>, mapfn: (v: T_3, k: number) => U_1, thisArg?: any): U_1[];
+                of<T_4>(...items: T_4[]): T_4[];
+                readonly [Symbol.species]: ArrayConstructor;
+            };
+            default: () => never[];
+        };
+        itemKey: {
+            type: (StringConstructor | NumberConstructor)[];
+            required: true;
+        };
+        minSize: {
+            type: NumberConstructor;
+            default: number;
+            required: true;
+        };
+        itemGap: {
+            type: NumberConstructor;
+            default: number;
+        };
+        renderControl: {
+            type: FunctionConstructor;
+            default: undefined;
+        };
+        fixed: {
+            type: BooleanConstructor;
+            default: boolean;
+        };
+        buffer: {
+            type: NumberConstructor;
+            default: number;
+        };
+        bufferTop: {
+            type: NumberConstructor;
+            default: number;
+        };
+        bufferBottom: {
+            type: NumberConstructor;
+            default: number;
+        };
+        scrollDistance: {
+            type: NumberConstructor;
+            default: number;
+        };
+        horizontal: {
+            type: BooleanConstructor;
+            default: boolean;
+        };
+        start: {
+            type: NumberConstructor;
+            default: number;
+        };
+        offset: {
+            type: NumberConstructor;
+            default: number;
+        };
+        listStyle: {
+            type: (ObjectConstructor | ArrayConstructor | StringConstructor)[];
+            default: string;
+        };
+        listClass: {
+            type: (ObjectConstructor | ArrayConstructor | StringConstructor)[];
+            default: string;
+        };
+        itemStyle: {
+            type: (ObjectConstructor | ArrayConstructor | StringConstructor | FunctionConstructor)[];
+            default: string;
+        };
+        itemClass: {
+            type: (ObjectConstructor | ArrayConstructor | StringConstructor | FunctionConstructor)[];
+            default: string;
+        };
+        headerClass: {
+            type: (ObjectConstructor | ArrayConstructor | StringConstructor)[];
+            default: string;
+        };
+        headerStyle: {
+            type: (ObjectConstructor | ArrayConstructor | StringConstructor)[];
+            default: string;
+        };
+        footerClass: {
+            type: (ObjectConstructor | ArrayConstructor | StringConstructor)[];
+            default: string;
+        };
+        footerStyle: {
+            type: (ObjectConstructor | ArrayConstructor | StringConstructor)[];
+            default: string;
+        };
+        stickyHeaderClass: {
+            type: (ObjectConstructor | ArrayConstructor | StringConstructor)[];
+            default: string;
+        };
+        stickyHeaderStyle: {
+            type: (ObjectConstructor | ArrayConstructor | StringConstructor)[];
+            default: string;
+        };
+        stickyFooterClass: {
+            type: (ObjectConstructor | ArrayConstructor | StringConstructor)[];
+            default: string;
+        };
+        stickyFooterStyle: {
+            type: (ObjectConstructor | ArrayConstructor | StringConstructor)[];
+            default: string;
+        };
+    }>> & Readonly<{}>, {
+        fixed: boolean;
+        renderControl: Function;
+        buffer: number;
+        bufferTop: number;
+        bufferBottom: number;
+        horizontal: boolean;
+        start: number;
+        offset: number;
+        listStyle: string | Record<string, any> | unknown[];
+        listClass: string | Record<string, any> | unknown[];
+        itemStyle: string | Function | Record<string, any> | unknown[];
+        itemClass: string | Function | Record<string, any> | unknown[];
+        list: any[];
+        minSize: number;
+        itemGap: number;
+        scrollDistance: number;
+        headerClass: string | Record<string, any> | unknown[];
+        headerStyle: string | Record<string, any> | unknown[];
+        footerClass: string | Record<string, any> | unknown[];
+        footerStyle: string | Record<string, any> | unknown[];
+        stickyHeaderClass: string | Record<string, any> | unknown[];
+        stickyHeaderStyle: string | Record<string, any> | unknown[];
+        stickyFooterClass: string | Record<string, any> | unknown[];
+        stickyFooterStyle: string | Record<string, any> | unknown[];
+    }, {}, {}, {}, string, import("vue-demi").ComponentProvideOptions, true, {}, any>;
+}, {}, string, import("vue-demi").ComponentProvideOptions, true, {}, any>;
+export default _default;

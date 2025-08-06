@@ -100,6 +100,7 @@ function sidebarExamples(): DefaultTheme.SidebarItem[] {
         { text: 'VirtGrid', link: 'virt-grid' },
         { text: 'VirtTree', link: 'virt-tree' },
         { text: 'VirtTable', link: 'virtable' },
+        { text: 'VirtListTransfer', link: 'virt-list-transfer' },
       ],
     },
   ];
@@ -113,6 +114,7 @@ function sidebarApi(): DefaultTheme.SidebarItem[] {
         { text: 'VirtList', link: 'virt-list' },
         { text: 'VirtGrid', link: 'virt-grid' },
         { text: 'VirtTree', link: 'virt-tree' },
+        { text: 'VirtListTransfer', link: 'virt-list-transfer' },
       ],
     },
   ];
