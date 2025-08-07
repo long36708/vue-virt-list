@@ -38,7 +38,6 @@ const defaultProps = {
   footerClass: '',
   disabled: false,
   oneWay: false,
-  pagination: false,
   showSize: false,
   size: 'default',
 };
@@ -141,10 +140,8 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
-    pagination: {
-      type: [Boolean, Object],
-      default: false,
-    },
+
+
     showSize: {
       type: Boolean,
       default: false,
@@ -342,17 +339,12 @@ export default defineComponent({
     // 创建防抖版本的搜索函数，实现输入后自动搜索
     const debouncedHandleSearch = debounce(handleSearch, 300);
 
-    // 判断项目在哪个列表中
-    const getItemDirection = (item: TransferItem): 'left' | 'right' => {
-      return props.targetKeys.includes(item.key) ? 'right' : 'left';
-    };
-
     // 渲染列表项
     const renderItem = (item: TransferItem, index: number, direction: 'left' | 'right') => {
       if (!item) return null;
       
-      const isSelected = (direction: 'left' | 'right') => {
-        const selectedKeys = direction === 'left' ? sourceSelectedKeys.value : targetSelectedKeys.value;
+      const isSelected = (checkDirection: 'left' | 'right') => {
+        const selectedKeys = checkDirection === 'left' ? sourceSelectedKeys.value : targetSelectedKeys.value;
         return selectedKeys.includes(item.key);
       };
 
@@ -372,6 +364,8 @@ export default defineComponent({
             attrs: {
               type: 'checkbox',
               disabled: item.disabled,
+              // 在Vue 2中，需要明确指定当前方向
+              'data-direction': direction,
             },
             domProps: {
               checked: isSelected(direction),
@@ -379,11 +373,13 @@ export default defineComponent({
             on: {
               change: (e: Event) => {
                 const target = e.target as HTMLInputElement;
-                const selectedKeys = direction === 'left' ? sourceSelectedKeys.value : targetSelectedKeys.value;
+                // 从自定义属性中获取方向，确保使用正确的方向
+                const checkDirection = (target.getAttribute('data-direction') || direction) as 'left' | 'right';
+                const selectedKeys = checkDirection === 'left' ? sourceSelectedKeys.value : targetSelectedKeys.value;
                 const newSelectedKeys = target.checked
                   ? [...selectedKeys, item.key]
                   : selectedKeys.filter(key => key !== item.key);
-                handleSelectChange(direction, newSelectedKeys);
+                handleSelectChange(checkDirection, newSelectedKeys);
               }
             }
           }
