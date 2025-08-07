@@ -586,44 +586,46 @@ export default defineComponent({
         }, props.notFoundContent);
       }
 
-      return _h(VirtList, {
-        // 添加key属性，当搜索时强制组件重新渲染
-        key: direction === 'left' ? `source-${sourceUpdateKey.value}` : `target-${targetUpdateKey.value}`,
-        list,
-        itemKey: 'key',
-        minSize: props.itemHeight,
-        itemGap: props.itemGap,
-        buffer: props.buffer,
-        headerClass: typeof props.headerClass === 'function' ? props.headerClass() : props.headerClass,
-        headerStyle: typeof props.headerStyle === 'function' ? props.headerStyle() : props.headerStyle,
-        footerClass: typeof props.footerClass === 'function' ? props.footerClass() : props.footerClass,
-        footerStyle: typeof props.footerStyle === 'function' ? props.footerStyle() : props.footerStyle,
-        stickyHeaderClass: typeof props.headerClass === 'function' ? props.headerClass() : props.headerClass,
-        stickyHeaderStyle: mergeStyles(
-          {
-            backgroundColor: '#fafafa',
-            borderBottom: '1px solid #f0f0f0',
+      // 先渲染标题头部，将其放在虚拟列表外部
+      const header = renderHeader(direction);
+
+      // 渲染虚拟列表，不使用stickyHeader
+      return _h('div', {
+        style: {
+          display: 'flex',
+          flexDirection: 'column',
+          border: '1px solid #d9d9d9',
+          borderRadius: '4px',
+          overflow: 'hidden',
+        }
+      }, [
+        // 头部固定在外部
+        header,
+        // 虚拟列表只包含内容部分
+        _h(VirtList, {
+          // 添加key属性，当搜索时强制组件重新渲染
+          key: direction === 'left' ? `source-${sourceUpdateKey.value}` : `target-${targetUpdateKey.value}`,
+          list,
+          itemKey: 'key',
+          minSize: props.itemHeight,
+          itemGap: props.itemGap,
+          buffer: props.buffer,
+          footerClass: typeof props.footerClass === 'function' ? props.footerClass() : props.footerClass,
+          footerStyle: typeof props.footerStyle === 'function' ? props.footerStyle() : props.footerStyle,
+          listStyle: mergeStyles(
+            {
+              height: '218px', // 250px减去头部高度32px
+            },
+            typeof props.listStyle === 'function' ? props.listStyle() : props.listStyle,
+          ),
+          listClass: typeof props.listClass === 'function' ? props.listClass() : props.listClass,
+          onScroll: (e: Event) => {
+            context.emit('scroll', direction, e);
           },
-          typeof props.headerStyle === 'function' ? props.headerStyle() : props.headerStyle,
-        ),
-        stickyFooterClass: '',
-        stickyFooterStyle: '',
-        listStyle: mergeStyles(
-          {
-            height: '250px',
-            border: '1px solid #d9d9d9',
-            borderRadius: '4px',
-          },
-          typeof props.listStyle === 'function' ? props.listStyle() : props.listStyle,
-        ),
-        listClass: typeof props.listClass === 'function' ? props.listClass() : props.listClass,
-        onScroll: (e: Event) => {
-          context.emit('scroll', direction, e);
-        },
-      }, {
-        stickyHeader: () => renderHeader(direction),
-        default: ({ itemData, index }: { itemData: TransferItem; index: number }) => renderItem(itemData, index),
-      });
+        }, {
+          default: ({ itemData, index }: { itemData: TransferItem; index: number }) => renderItem(itemData, index),
+        })
+      ]);
     };
 
     return () => _h('div', {
