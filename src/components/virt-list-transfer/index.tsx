@@ -358,6 +358,42 @@ export default defineComponent({
         handleSelectChange(direction, newSelectedKeys);
       };
 
+      const checkboxProps = isVue2 
+        ? {
+            attrs: {
+              type: 'checkbox',
+              disabled: item.disabled,
+            },
+            domProps: {
+              checked: isSelected('left') || isSelected('right'),
+            },
+            on: {
+              change: (e: Event) => {
+                const target = e.target as HTMLInputElement;
+                const direction = isSelected('left') ? 'left' : 'right';
+                const selectedKeys = direction === 'left' ? sourceSelectedKeys.value : targetSelectedKeys.value;
+                const newSelectedKeys = target.checked
+                  ? [...selectedKeys, item.key]
+                  : selectedKeys.filter(key => key !== item.key);
+                handleSelectChange(direction, newSelectedKeys);
+              }
+            }
+          }
+        : {
+            type: 'checkbox',
+            checked: isSelected('left') || isSelected('right'),
+            disabled: item.disabled,
+            onChange: (e: Event) => {
+              const target = e.target as HTMLInputElement;
+              const direction = isSelected('left') ? 'left' : 'right';
+              const selectedKeys = direction === 'left' ? sourceSelectedKeys.value : targetSelectedKeys.value;
+              const newSelectedKeys = target.checked
+                ? [...selectedKeys, item.key]
+                : selectedKeys.filter(key => key !== item.key);
+              handleSelectChange(direction, newSelectedKeys);
+            }
+          };
+
       return _h('div', {
         class: [
           'virt-transfer-item',
@@ -384,22 +420,7 @@ export default defineComponent({
         },
       }, [
         _h('input', {
-          attrs: {
-            type: 'checkbox',
-            checked: isSelected('left') || isSelected('right'),
-            disabled: item.disabled,
-          },
-          on: {
-            change: (e: Event) => {
-              const target = e.target as HTMLInputElement;
-              const direction = isSelected('left') ? 'left' : 'right';
-              const selectedKeys = direction === 'left' ? sourceSelectedKeys.value : targetSelectedKeys.value;
-              const newSelectedKeys = target.checked
-                ? [...selectedKeys, item.key]
-                : selectedKeys.filter(key => key !== item.key);
-              handleSelectChange(direction, newSelectedKeys);
-            }
-          },
+          ...checkboxProps,
           style: {
             marginRight: '8px',
           },
@@ -437,6 +458,34 @@ export default defineComponent({
       const allSelected = direction === 'left' ? sourceAllSelected.value : targetAllSelected.value;
       const partSelected = direction === 'left' ? sourcePartSelected.value : targetPartSelected.value;
       const title = props.titles[direction === 'left' ? 0 : 1];
+
+      const headerCheckboxProps = isVue2 
+        ? {
+            attrs: {
+              type: 'checkbox',
+              disabled: props.disabled,
+            },
+            domProps: {
+              checked: allSelected,
+              indeterminate: partSelected,
+            },
+            on: {
+              change: (e: Event) => {
+                const target = e.target as HTMLInputElement;
+                handleSelectAll(direction, target.checked);
+              }
+            }
+          }
+        : {
+            type: 'checkbox',
+            checked: allSelected,
+            indeterminate: partSelected,
+            disabled: props.disabled,
+            onChange: (e: Event) => {
+              const target = e.target as HTMLInputElement;
+              handleSelectAll(direction, target.checked);
+            }
+          };
 
       return _h('div', {
         class: [
@@ -481,18 +530,7 @@ export default defineComponent({
           class: 'virt-transfer-header-select-all',
         }, [
           _h('input', {
-            attrs: {
-              type: 'checkbox',
-              checked: allSelected,
-              indeterminate: partSelected,
-              disabled: props.disabled,
-            },
-            on: {
-              change: (e: Event) => {
-                const target = e.target as HTMLInputElement;
-                handleSelectAll(direction, target.checked);
-              }
-            },
+            ...headerCheckboxProps,
             style: {
               marginRight: '4px',
             },
@@ -513,24 +551,13 @@ export default defineComponent({
 
       const searchValue = direction === 'left' ? sourceSearchValue.value : targetSearchValue.value;
 
-      return _h('div', {
-        class: 'virt-transfer-search',
-        style: {
-          padding: '8px 12px',
-          borderBottom: '1px solid #f0f0f0',
-        },
-      }, [
-        _h('div', {
-          class: 'virt-transfer-search-input-wrapper',
-          style: {
-            position: 'relative',
-            width: '100%',
-          }
-        }, [
-          _h('input', {
+      const searchInputProps = isVue2 
+        ? {
             attrs: {
               type: 'text',
               placeholder: props.searchPlaceholder,
+            },
+            domProps: {
               value: searchValue,
             },
             on: {
@@ -548,7 +575,44 @@ export default defineComponent({
                   handleSearch(direction, target.value);
                 }
               }
+            }
+          }
+        : {
+            type: 'text',
+            placeholder: props.searchPlaceholder,
+            value: searchValue,
+            onInput: (e: Event) => {
+              const target = e.target as HTMLInputElement;
+              debouncedHandleSearch(direction, target.value);
             },
+            onChange: (e: Event) => {
+              const target = e.target as HTMLInputElement;
+              handleSearch(direction, target.value);
+            },
+            onKeyDown: (e: KeyboardEvent) => {
+              if (e.key === 'Enter') {
+                const target = e.target as HTMLInputElement;
+                handleSearch(direction, target.value);
+              }
+            }
+          };
+
+      return _h('div', {
+        class: 'virt-transfer-search',
+        style: {
+          padding: '8px 12px',
+          borderBottom: '1px solid #f0f0f0',
+        },
+      }, [
+        _h('div', {
+          class: 'virt-transfer-search-input-wrapper',
+          style: {
+            position: 'relative',
+            width: '100%',
+          }
+        }, [
+          _h('input', {
+            ...searchInputProps,
             style: {
               width: '100%',
               padding: '4px 28px 4px 8px',
@@ -590,6 +654,34 @@ export default defineComponent({
       const canMoveRight = sourceSelectedKeys.value.length > 0 && !props.disabled;
       const canMoveLeft = targetSelectedKeys.value.length > 0 && !props.disabled && !props.oneWay;
 
+      const rightButtonProps = isVue2 
+        ? {
+            attrs: {
+              disabled: !canMoveRight,
+            },
+            on: {
+              click: () => handleMove('right')
+            }
+          }
+        : {
+            disabled: !canMoveRight,
+            onClick: () => handleMove('right')
+          };
+
+      const leftButtonProps = isVue2 
+        ? {
+            attrs: {
+              disabled: !canMoveLeft,
+            },
+            on: {
+              click: () => handleMove('left')
+            }
+          }
+        : {
+            disabled: !canMoveLeft,
+            onClick: () => handleMove('left')
+          };
+
       return _h('div', {
         class: 'virt-transfer-operations',
         style: {
@@ -606,12 +698,7 @@ export default defineComponent({
               'virt-transfer-operation-btn-disabled': !canMoveRight,
             },
           ],
-          attrs: {
-            disabled: !canMoveRight,
-          },
-          on: {
-            click: () => handleMove('right')
-          },
+          ...rightButtonProps,
           style: {
             marginBottom: '8px',
             padding: '4px 8px',
@@ -629,12 +716,7 @@ export default defineComponent({
               'virt-transfer-operation-btn-disabled': !canMoveLeft,
             },
           ],
-          attrs: {
-            disabled: !canMoveLeft,
-          },
-          on: {
-            click: () => handleMove('left')
-          },
+          ...leftButtonProps,
           style: {
             padding: '4px 8px',
             border: '1px solid #d9d9d9',
