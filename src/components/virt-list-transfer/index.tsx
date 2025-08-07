@@ -11,7 +11,7 @@ import {
 } from 'vue-demi';
 import { VirtList } from '../virt-list/index';
 import type { TransferProps, TransferItem, TransferEmit } from './type';
-import { _h, getSlot, mergeStyles } from '../../utils';
+import { _h, getSlot, mergeStyles, debounce } from '../../utils';
 import './transfer.css';
 
 const defaultProps = {
@@ -168,6 +168,10 @@ export default defineComponent({
     const sourceSelectedKeys = ref<string[]>([]);
     const targetSelectedKeys = ref<string[]>([]);
 
+    // 用于强制更新视图的标记
+    const sourceUpdateKey = ref(0);
+    const targetUpdateKey = ref(0);
+
     // 计算源列表和目标列表
     const sourceList = computed(() => {
       return props.dataSource.filter((item: TransferItem) => !props.targetKeys.includes(item.key));
@@ -203,26 +207,38 @@ export default defineComponent({
     // 全选状态
     const sourceAllSelected = computed(() => {
       const selectedKeys = sourceSelectedKeys.value;
-      const filteredKeys = filteredSourceList.value.map((item: TransferItem) => item.key);
+      // 只考虑未禁用的项目
+      const filteredKeys = filteredSourceList.value
+        .filter((item: TransferItem) => !item.disabled)
+        .map((item: TransferItem) => item.key);
       return filteredKeys.length > 0 && filteredKeys.every((key: string) => selectedKeys.includes(key));
     });
 
     const targetAllSelected = computed(() => {
       const selectedKeys = targetSelectedKeys.value;
-      const filteredKeys = filteredTargetList.value.map((item: TransferItem) => item.key);
+      // 只考虑未禁用的项目
+      const filteredKeys = filteredTargetList.value
+        .filter((item: TransferItem) => !item.disabled)
+        .map((item: TransferItem) => item.key);
       return filteredKeys.length > 0 && filteredKeys.every((key: string) => selectedKeys.includes(key));
     });
 
     // 部分选中状态
     const sourcePartSelected = computed(() => {
       const selectedKeys = sourceSelectedKeys.value;
-      const filteredKeys = filteredSourceList.value.map((item: TransferItem) => item.key);
+      // 只考虑未禁用的项目
+      const filteredKeys = filteredSourceList.value
+        .filter((item: TransferItem) => !item.disabled)
+        .map((item: TransferItem) => item.key);
       return filteredKeys.some((key: string) => selectedKeys.includes(key)) && !sourceAllSelected.value;
     });
 
     const targetPartSelected = computed(() => {
       const selectedKeys = targetSelectedKeys.value;
-      const filteredKeys = filteredTargetList.value.map((item: TransferItem) => item.key);
+      // 只考虑未禁用的项目
+      const filteredKeys = filteredTargetList.value
+        .filter((item: TransferItem) => !item.disabled)
+        .map((item: TransferItem) => item.key);
       return filteredKeys.some((key: string) => selectedKeys.includes(key)) && !targetAllSelected.value;
     });
 
@@ -256,7 +272,8 @@ export default defineComponent({
     // 处理全选
     const handleSelectAll = (direction: 'left' | 'right', selected: boolean) => {
       const list = direction === 'left' ? filteredSourceList.value : filteredTargetList.value;
-      const keys = list.map(item => item.key);
+      // 只选择未禁用的项目
+      const keys = list.filter(item => !item.disabled).map(item => item.key);
       
       if (direction === 'left') {
         sourceSelectedKeys.value = selected ? keys : [];
@@ -279,9 +296,18 @@ export default defineComponent({
       
       if (selectedKeys.length === 0) return;
 
+      // 获取可以移动的键（排除禁用项）
+      const moveableKeys = selectedKeys.filter(key => {
+        const items = direction === 'left' ? targetList.value : sourceList.value;
+        const item = items.find(item => item.key === key);
+        return item && !item.disabled;
+      });
+
+      if (moveableKeys.length === 0) return;
+
       const newTargetKeys = direction === 'left' 
-        ? props.targetKeys.filter(key => !selectedKeys.includes(key))
-        : [...props.targetKeys, ...selectedKeys];
+        ? props.targetKeys.filter(key => !moveableKeys.includes(key))
+        : [...props.targetKeys, ...moveableKeys];
 
       // 清空对应方向的选中状态
       if (direction === 'left') {
@@ -292,18 +318,25 @@ export default defineComponent({
 
       // 发出v-model更新事件
       context.emit('update:targetKeys', newTargetKeys);
-      context.emit('change', newTargetKeys, direction, selectedKeys);
+      context.emit('change', newTargetKeys, direction, moveableKeys);
     };
 
     // 处理搜索
     const handleSearch = (direction: 'left' | 'right', value: string) => {
       if (direction === 'left') {
         sourceSearchValue.value = value;
+        // 增加更新标记，强制视图刷新
+        sourceUpdateKey.value += 1;
       } else {
         targetSearchValue.value = value;
+        // 增加更新标记，强制视图刷新
+        targetUpdateKey.value += 1;
       }
       context.emit('search', direction, value);
     };
+
+    // 创建防抖版本的搜索函数，实现输入后自动搜索
+    const debouncedHandleSearch = debounce(handleSearch, 300);
 
     // 渲染列表项
     const renderItem = (item: TransferItem, index: number) => {
@@ -459,7 +492,13 @@ export default defineComponent({
           value: searchValue,
           onChange: (e: Event) => {
             const target = e.target as HTMLInputElement;
-            handleSearch(direction, target.value);
+            debouncedHandleSearch(direction, target.value);
+          },
+          onKeyDown: (e: KeyboardEvent) => {
+            if (e.key === 'Enter') {
+              const target = e.target as HTMLInputElement;
+              handleSearch(direction, target.value);
+            }
           },
           style: {
             width: '100%',
@@ -548,6 +587,8 @@ export default defineComponent({
       }
 
       return _h(VirtList, {
+        // 添加key属性，当搜索时强制组件重新渲染
+        key: direction === 'left' ? `source-${sourceUpdateKey.value}` : `target-${targetUpdateKey.value}`,
         list,
         itemKey: 'key',
         minSize: props.itemHeight,
@@ -643,4 +684,4 @@ export default defineComponent({
       ]),
     ]);
   },
-}); 
+});
