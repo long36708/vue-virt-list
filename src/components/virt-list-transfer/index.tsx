@@ -531,6 +531,22 @@ export default defineComponent({
       const list = direction === 'left' ? filteredSourceList.value : filteredTargetList.value;
       const selectedKeys = direction === 'left' ? sourceSelectedKeys.value : targetSelectedKeys.value;
 
+      // 当列表为空时，直接显示无数据提示
+      if (list.length === 0) {
+        return _h('div', {
+          style: {
+            height: '250px',
+            border: '1px solid #d9d9d9',
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#999',
+            overflow: 'hidden',
+          },
+        }, props.notFoundContent);
+      }
+
       return _h(VirtList, {
         list,
         itemKey: 'key',
@@ -541,8 +557,14 @@ export default defineComponent({
         headerStyle: typeof props.headerStyle === 'function' ? props.headerStyle() : props.headerStyle,
         footerClass: typeof props.footerClass === 'function' ? props.footerClass() : props.footerClass,
         footerStyle: typeof props.footerStyle === 'function' ? props.footerStyle() : props.footerStyle,
-        stickyHeaderClass: '',
-        stickyHeaderStyle: '',
+        stickyHeaderClass: typeof props.headerClass === 'function' ? props.headerClass() : props.headerClass,
+        stickyHeaderStyle: mergeStyles(
+          {
+            backgroundColor: '#fafafa',
+            borderBottom: '1px solid #f0f0f0',
+          },
+          typeof props.headerStyle === 'function' ? props.headerStyle() : props.headerStyle,
+        ),
         stickyFooterClass: '',
         stickyFooterStyle: '',
         listStyle: mergeStyles(
@@ -558,15 +580,8 @@ export default defineComponent({
           context.emit('scroll', direction, e);
         },
       }, {
-        header: () => renderHeader(direction),
+        stickyHeader: () => renderHeader(direction),
         default: ({ itemData, index }: { itemData: TransferItem; index: number }) => renderItem(itemData, index),
-        footer: () => list.length === 0 ? _h('div', {
-          style: {
-            padding: '20px',
-            textAlign: 'center',
-            color: '#999',
-          },
-        }, props.notFoundContent) : null,
       });
     };
 
@@ -589,10 +604,19 @@ export default defineComponent({
         class: 'virt-transfer-list',
         style: {
           flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
         },
       }, [
         renderSearch('left'),
-        renderList('left'),
+        _h('div', {
+          style: {
+            flex: 1,
+            overflow: 'hidden',
+          },
+        }, [
+          renderList('left'),
+        ]),
       ]),
       
       // 操作按钮
@@ -603,10 +627,19 @@ export default defineComponent({
         class: 'virt-transfer-list',
         style: {
           flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
         },
       }, [
         renderSearch('right'),
-        renderList('right'),
+        _h('div', {
+          style: {
+            flex: 1,
+            overflow: 'hidden',
+          },
+        }, [
+          renderList('right'),
+        ]),
       ]),
     ]);
   },
