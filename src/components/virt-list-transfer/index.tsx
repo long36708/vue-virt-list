@@ -260,7 +260,9 @@ export default defineComponent({
         targetSelectedKeys.value = selectedKeys;
       }
 
-      const allSelectedKeys = [...sourceSelectedKeys.value, ...targetSelectedKeys.value];
+      // 使用Set去重，确保不会有重复的key
+      const allSelectedKeys = Array.from(new Set([...sourceSelectedKeys.value, ...targetSelectedKeys.value]));
+      
       // 发出v-model更新事件
       context.emit('update:selectedKeys', allSelectedKeys);
       context.emit('selectChange', allSelectedKeys, {
@@ -281,7 +283,9 @@ export default defineComponent({
         targetSelectedKeys.value = selected ? keys : [];
       }
 
-      const allSelectedKeys = [...sourceSelectedKeys.value, ...targetSelectedKeys.value];
+      // 使用Set去重，确保不会有重复的key
+      const allSelectedKeys = Array.from(new Set([...sourceSelectedKeys.value, ...targetSelectedKeys.value]));
+      
       // 发出v-model更新事件
       context.emit('update:selectedKeys', allSelectedKeys);
       context.emit('selectChange', allSelectedKeys, {
@@ -338,8 +342,13 @@ export default defineComponent({
     // 创建防抖版本的搜索函数，实现输入后自动搜索
     const debouncedHandleSearch = debounce(handleSearch, 300);
 
+    // 判断项目在哪个列表中
+    const getItemDirection = (item: TransferItem): 'left' | 'right' => {
+      return props.targetKeys.includes(item.key) ? 'right' : 'left';
+    };
+
     // 渲染列表项
-    const renderItem = (item: TransferItem, index: number) => {
+    const renderItem = (item: TransferItem, index: number, direction: 'left' | 'right') => {
       if (!item) return null;
       
       const isSelected = (direction: 'left' | 'right') => {
@@ -347,7 +356,7 @@ export default defineComponent({
         return selectedKeys.includes(item.key);
       };
 
-      const handleItemClick = (direction: 'left' | 'right') => {
+      const handleItemClick = () => {
         if (props.disabled || item.disabled) return;
 
         const selectedKeys = direction === 'left' ? sourceSelectedKeys.value : targetSelectedKeys.value;
@@ -365,12 +374,11 @@ export default defineComponent({
               disabled: item.disabled,
             },
             domProps: {
-              checked: isSelected('left') || isSelected('right'),
+              checked: isSelected(direction),
             },
             on: {
               change: (e: Event) => {
                 const target = e.target as HTMLInputElement;
-                const direction = isSelected('left') ? 'left' : 'right';
                 const selectedKeys = direction === 'left' ? sourceSelectedKeys.value : targetSelectedKeys.value;
                 const newSelectedKeys = target.checked
                   ? [...selectedKeys, item.key]
@@ -381,11 +389,10 @@ export default defineComponent({
           }
         : {
             type: 'checkbox',
-            checked: isSelected('left') || isSelected('right'),
+            checked: isSelected(direction),
             disabled: item.disabled,
             onChange: (e: Event) => {
               const target = e.target as HTMLInputElement;
-              const direction = isSelected('left') ? 'left' : 'right';
               const selectedKeys = direction === 'left' ? sourceSelectedKeys.value : targetSelectedKeys.value;
               const newSelectedKeys = target.checked
                 ? [...selectedKeys, item.key]
@@ -398,7 +405,7 @@ export default defineComponent({
         class: [
           'virt-transfer-item',
           {
-            'virt-transfer-item-selected': isSelected('left') || isSelected('right'),
+            'virt-transfer-item-selected': isSelected(direction),
             'virt-transfer-item-disabled': item.disabled,
           },
           typeof props.itemClass === 'function' ? props.itemClass(item, index) : props.itemClass,
@@ -416,7 +423,7 @@ export default defineComponent({
           typeof props.itemStyle === 'function' ? props.itemStyle(item, index) : props.itemStyle,
         ),
         on: {
-          click: () => handleItemClick('left')
+          click: handleItemClick
         },
       }, [
         _h('input', {
@@ -774,7 +781,7 @@ export default defineComponent({
           },
         },
       }, {
-        default: ({ itemData, index }: { itemData: TransferItem; index: number }) => renderItem(itemData, index),
+        default: ({ itemData, index }: { itemData: TransferItem; index: number }) => renderItem(itemData, index, direction),
       });
     };
 
