@@ -13,16 +13,53 @@
 }
 
 /* 尺寸变体 */
+.virt-transfer-small {
+  font-size: 12px;
+}
+
 .virt-transfer-small .virt-transfer-list {
   min-width: 200px;
+}
+
+.virt-transfer-small .virt-transfer-header {
+  padding: 6px 10px;
+}
+
+.virt-transfer-small .virt-transfer-search {
+  padding: 6px 10px;
+}
+
+.virt-transfer-small .virt-transfer-item {
+  padding: 0 10px;
 }
 
 .virt-transfer-default .virt-transfer-list {
   min-width: 250px;
 }
 
+.virt-transfer-large {
+  font-size: 16px;
+}
+
 .virt-transfer-large .virt-transfer-list {
   min-width: 300px;
+}
+
+.virt-transfer-large .virt-transfer-header {
+  padding: 10px 16px;
+}
+
+.virt-transfer-large .virt-transfer-search {
+  padding: 10px 16px;
+}
+
+.virt-transfer-large .virt-transfer-item {
+  padding: 0 16px;
+}
+
+.virt-transfer-large .virt-transfer-operation-btn {
+  padding: 8px 16px;
+  font-size: 14px;
 }
 
 /* 列表容器 */
@@ -39,9 +76,14 @@
   border-bottom: 1px solid #f0f0f0;
 }
 
+.virt-transfer-search-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
 .virt-transfer-search input {
   width: 100%;
-  padding: 4px 8px;
+  padding: 4px 28px 4px 8px;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   font-size: 12px;
@@ -54,6 +96,27 @@
   box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
 }
 
+.virt-transfer-search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  line-height: 12px;
+  text-align: center;
+  border-radius: 50%;
+  background-color: #ccc;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.virt-transfer-search-clear:hover {
+  background-color: #999;
+}
+
 /* 头部 */
 .virt-transfer-header {
   padding: 8px 12px;
@@ -64,9 +127,20 @@
   background-color: #fafafa;
 }
 
+.virt-transfer-header-left {
+  display: flex;
+  align-items: center;
+}
+
 .virt-transfer-header-title {
   font-weight: 500;
   color: #262626;
+}
+
+.virt-transfer-header-size {
+  font-size: 12px;
+  color: #666;
+  margin-left: 8px;
 }
 
 .virt-transfer-header-select-all {
@@ -85,18 +159,20 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 0 8px;
+  padding: 0 12px;
 }
 
 .virt-transfer-operation-btn {
-  margin-bottom: 8px;
-  padding: 4px 8px;
+  margin-bottom: 12px;
+  padding: 6px 12px;
   border: 1px solid #d9d9d9;
   border-radius: 4px;
   background: #fff;
   cursor: pointer;
   font-size: 12px;
   transition: all 0.2s;
+  min-width: 32px;
+  text-align: center;
 }
 
 .virt-transfer-operation-btn:last-child {
@@ -125,7 +201,7 @@
   padding: 0 12px;
   cursor: pointer;
   user-select: none;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
   border-bottom: 1px solid #f0f0f0;
 }
 
@@ -152,6 +228,11 @@
 
 .virt-transfer-item input[type="checkbox"] {
   margin-right: 8px;
+  cursor: pointer;
+}
+
+.virt-transfer-item-disabled input[type="checkbox"] {
+  cursor: not-allowed;
 }
 
 .virt-transfer-item-title {
@@ -160,12 +241,17 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   color: #262626;
+  font-size: 14px;
 }
 
 .virt-transfer-item-description {
   font-size: 12px;
   color: #999;
   margin-left: 8px;
+  max-width: 30%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* 空状态 */
@@ -173,6 +259,14 @@
   padding: 20px;
   text-align: center;
   color: #999;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  background-color: #fff;
+  font-size: 14px;
 }
 
 /* 响应式设计 */
@@ -195,6 +289,30 @@
   
   .virt-transfer-operation-btn:last-child {
     margin-right: 0;
+  }
+  
+  .virt-transfer-header {
+    flex-wrap: wrap;
+  }
+  
+  .virt-transfer-header-select-all {
+    margin-top: 4px;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .virt-transfer-item-description {
+    display: none;
+  }
+  
+  .virt-transfer-search input {
+    font-size: 14px;
+    padding: 6px 28px 6px 8px;
+  }
+  
+  .virt-transfer-header-title {
+    font-size: 14px;
   }
 }
 

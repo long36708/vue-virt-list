@@ -18,13 +18,13 @@ const defaultProps = {
   dataSource: () => [],
   targetKeys: () => [],
   selectedKeys: () => [],
-  titles: () => ['Source', 'Target'],
+  titles: () => ['源列表', '目标列表'],
   operations: () => ['>', '<'],
   showSearch: false,
   showSelectAll: true,
   filterOption: undefined,
-  searchPlaceholder: 'Search',
-  notFoundContent: 'No Data',
+  searchPlaceholder: '搜索',
+  notFoundContent: '暂无数据',
   itemHeight: 32,
   itemGap: 0,
   buffer: 5,
@@ -406,6 +406,9 @@ export default defineComponent({
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
           },
+          attrs: {
+            title: item.title, // 添加title属性，鼠标悬浮时显示完整内容
+          },
         }, item.title),
         item.description && _h('span', {
           class: 'virt-transfer-item-description',
@@ -413,6 +416,9 @@ export default defineComponent({
             fontSize: '12px',
             color: '#999',
             marginLeft: '8px',
+          },
+          attrs: {
+            title: item.description, // 添加title属性，鼠标悬浮时显示完整描述
           },
         }, item.description),
       ]);
@@ -442,12 +448,29 @@ export default defineComponent({
           typeof props.headerStyle === 'function' ? props.headerStyle() : props.headerStyle,
         ),
       }, [
-        _h('span', {
-          class: 'virt-transfer-header-title',
+        _h('div', {
+          class: 'virt-transfer-header-left',
           style: {
-            fontWeight: 500,
-          },
-        }, title),
+            display: 'flex',
+            alignItems: 'center',
+          }
+        }, [
+          _h('span', {
+            class: 'virt-transfer-header-title',
+            style: {
+              fontWeight: 500,
+            },
+          }, title),
+          // 显示尺寸信息
+          props.showSize && _h('span', {
+            class: 'virt-transfer-header-size',
+            style: {
+              fontSize: '12px',
+              color: '#666',
+              marginLeft: '8px',
+            },
+          }, `(${list.length})`),
+        ]),
         props.showSelectAll && _h('div', {
           class: 'virt-transfer-header-select-all',
         }, [
@@ -468,7 +491,7 @@ export default defineComponent({
               fontSize: '12px',
               color: '#666',
             },
-          }, `Selected ${selectedKeys.length}/${list.length}`),
+          }, `已选 ${selectedKeys.length}/${list.length}`),
         ]),
       ]);
     };
@@ -486,28 +509,58 @@ export default defineComponent({
           borderBottom: '1px solid #f0f0f0',
         },
       }, [
-        _h('input', {
-          type: 'text',
-          placeholder: props.searchPlaceholder,
-          value: searchValue,
-          onChange: (e: Event) => {
-            const target = e.target as HTMLInputElement;
-            debouncedHandleSearch(direction, target.value);
-          },
-          onKeyDown: (e: KeyboardEvent) => {
-            if (e.key === 'Enter') {
-              const target = e.target as HTMLInputElement;
-              handleSearch(direction, target.value);
-            }
-          },
+        _h('div', {
+          class: 'virt-transfer-search-input-wrapper',
           style: {
+            position: 'relative',
             width: '100%',
-            padding: '4px 8px',
-            border: '1px solid #d9d9d9',
-            borderRadius: '4px',
-            fontSize: '12px',
-          },
-        }),
+          }
+        }, [
+          _h('input', {
+            type: 'text',
+            placeholder: props.searchPlaceholder,
+            value: searchValue,
+            onChange: (e: Event) => {
+              const target = e.target as HTMLInputElement;
+              debouncedHandleSearch(direction, target.value);
+            },
+            onKeyDown: (e: KeyboardEvent) => {
+              if (e.key === 'Enter') {
+                const target = e.target as HTMLInputElement;
+                handleSearch(direction, target.value);
+              }
+            },
+            style: {
+              width: '100%',
+              padding: '4px 28px 4px 8px',
+              border: '1px solid #d9d9d9',
+              borderRadius: '4px',
+              fontSize: '12px',
+            },
+          }),
+          // 清除按钮
+          searchValue && _h('span', {
+            class: 'virt-transfer-search-clear',
+            onClick: () => {
+              handleSearch(direction, '');
+            },
+            style: {
+              position: 'absolute',
+              right: '8px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              width: '14px',
+              height: '14px',
+              lineHeight: '14px',
+              textAlign: 'center',
+              borderRadius: '50%',
+              backgroundColor: '#ccc',
+              color: '#fff',
+              fontSize: '12px',
+              cursor: 'pointer',
+            }
+          }, '×'),
+        ]),
       ]);
     };
 
@@ -572,60 +625,42 @@ export default defineComponent({
 
       // 当列表为空时，直接显示无数据提示
       if (list.length === 0) {
+        // 使用专门的空状态样式类
         return _h('div', {
-          style: {
-            height: '250px',
-            border: '1px solid #d9d9d9',
-            borderRadius: '4px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#999',
-            overflow: 'hidden',
-          },
+          class: [
+            'virt-transfer-empty',
+            typeof props.listClass === 'function' ? props.listClass() : props.listClass,
+          ],
+          style: typeof props.listStyle === 'function' ? props.listStyle() : props.listStyle,
         }, props.notFoundContent);
       }
 
-      // 先渲染标题头部，将其放在虚拟列表外部
-      const header = renderHeader(direction);
-
       // 渲染虚拟列表，不使用stickyHeader
-      return _h('div', {
-        style: {
-          display: 'flex',
-          flexDirection: 'column',
-          border: '1px solid #d9d9d9',
-          borderRadius: '4px',
-          overflow: 'hidden',
-        }
-      }, [
-        // 头部固定在外部
-        header,
-        // 虚拟列表只包含内容部分
-        _h(VirtList, {
-          // 添加key属性，当搜索时强制组件重新渲染
-          key: direction === 'left' ? `source-${sourceUpdateKey.value}` : `target-${targetUpdateKey.value}`,
-          list,
-          itemKey: 'key',
-          minSize: props.itemHeight,
-          itemGap: props.itemGap,
-          buffer: props.buffer,
-          footerClass: typeof props.footerClass === 'function' ? props.footerClass() : props.footerClass,
-          footerStyle: typeof props.footerStyle === 'function' ? props.footerStyle() : props.footerStyle,
-          listStyle: mergeStyles(
-            {
-              height: '218px', // 250px减去头部高度32px
-            },
-            typeof props.listStyle === 'function' ? props.listStyle() : props.listStyle,
-          ),
-          listClass: typeof props.listClass === 'function' ? props.listClass() : props.listClass,
-          onScroll: (e: Event) => {
-            context.emit('scroll', direction, e);
+      return _h(VirtList, {
+        // 添加key属性，当搜索时强制组件重新渲染
+        key: direction === 'left' ? `source-${sourceUpdateKey.value}` : `target-${targetUpdateKey.value}`,
+        list,
+        itemKey: 'key',
+        minSize: props.itemHeight,
+        itemGap: props.itemGap,
+        buffer: props.buffer,
+        footerClass: typeof props.footerClass === 'function' ? props.footerClass() : props.footerClass,
+        footerStyle: typeof props.footerStyle === 'function' ? props.footerStyle() : props.footerStyle,
+        listStyle: mergeStyles(
+          {
+            height: '100%', // 使用100%高度填充父容器
+            border: '1px solid #d9d9d9',
+            borderRadius: '4px',
           },
-        }, {
-          default: ({ itemData, index }: { itemData: TransferItem; index: number }) => renderItem(itemData, index),
-        })
-      ]);
+          typeof props.listStyle === 'function' ? props.listStyle() : props.listStyle,
+        ),
+        listClass: typeof props.listClass === 'function' ? props.listClass() : props.listClass,
+        onScroll: (e: Event) => {
+          context.emit('scroll', direction, e);
+        },
+      }, {
+        default: ({ itemData, index }: { itemData: TransferItem; index: number }) => renderItem(itemData, index),
+      });
     };
 
     return () => _h('div', {
@@ -640,6 +675,7 @@ export default defineComponent({
         display: 'flex',
         alignItems: 'flex-start',
         gap: '8px',
+        height: '100%',
       },
     }, [
       // 左侧列表
@@ -649,13 +685,19 @@ export default defineComponent({
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
+          height: '100%',
         },
       }, [
         renderSearch('left'),
+        // 头部
+        renderHeader('left'),
+        // 内容区域
         _h('div', {
           style: {
             flex: 1,
             overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
           },
         }, [
           renderList('left'),
@@ -672,13 +714,19 @@ export default defineComponent({
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
+          height: '100%',
         },
       }, [
         renderSearch('right'),
+        // 头部
+        renderHeader('right'),
+        // 内容区域
         _h('div', {
           style: {
             flex: 1,
             overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
           },
         }, [
           renderList('right'),
