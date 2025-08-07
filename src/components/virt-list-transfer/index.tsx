@@ -371,7 +371,14 @@ export default defineComponent({
               checked: isSelected(direction),
             },
             on: {
+              click: (e: Event) => {
+                // 阻止事件冒泡，防止触发整行的点击事件
+                e.stopPropagation();
+              },
               change: (e: Event) => {
+                // 阻止事件冒泡，防止触发整行的点击事件
+                e.stopPropagation();
+                
                 const target = e.target as HTMLInputElement;
                 // 从自定义属性中获取方向，确保使用正确的方向
                 const checkDirection = (target.getAttribute('data-direction') || direction) as 'left' | 'right';
