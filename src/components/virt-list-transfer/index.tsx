@@ -11,7 +11,7 @@ import {
 } from 'vue-demi';
 import { VirtList } from '../virt-list/index';
 import type { TransferProps, TransferItem, TransferEmit } from './type';
-import { _h, getSlot, mergeStyles, debounce } from '../../utils';
+import { _h, _h2Slot, getSlot, mergeStyles, debounce } from '../../utils';
 import './transfer.css';
 
 const defaultProps = {
@@ -636,27 +636,31 @@ export default defineComponent({
       }
 
       // 渲染虚拟列表，不使用stickyHeader
-      return _h(VirtList, {
+      return _h2Slot(VirtList, {
         // 添加key属性，当搜索时强制组件重新渲染
         key: direction === 'left' ? `source-${sourceUpdateKey.value}` : `target-${targetUpdateKey.value}`,
-        list,
-        itemKey: 'key',
-        minSize: props.itemHeight,
-        itemGap: props.itemGap,
-        buffer: props.buffer,
-        footerClass: typeof props.footerClass === 'function' ? props.footerClass() : props.footerClass,
-        footerStyle: typeof props.footerStyle === 'function' ? props.footerStyle() : props.footerStyle,
-        listStyle: mergeStyles(
-          {
-            height: '100%', // 使用100%高度填充父容器
-            border: '1px solid #d9d9d9',
-            borderRadius: '4px',
+        attrs: {
+          list,
+          itemKey: 'key',
+          minSize: props.itemHeight,
+          itemGap: props.itemGap,
+          buffer: props.buffer,
+          footerClass: typeof props.footerClass === 'function' ? props.footerClass() : props.footerClass,
+          footerStyle: typeof props.footerStyle === 'function' ? props.footerStyle() : props.footerStyle,
+          listStyle: mergeStyles(
+            {
+              height: '100%', // 使用100%高度填充父容器
+              border: '1px solid #d9d9d9',
+              borderRadius: '4px',
+            },
+            typeof props.listStyle === 'function' ? props.listStyle() : props.listStyle,
+          ),
+          listClass: typeof props.listClass === 'function' ? props.listClass() : props.listClass,
+        },
+        on: {
+          scroll: (e: Event) => {
+            context.emit('scroll', direction, e);
           },
-          typeof props.listStyle === 'function' ? props.listStyle() : props.listStyle,
-        ),
-        listClass: typeof props.listClass === 'function' ? props.listClass() : props.listClass,
-        onScroll: (e: Event) => {
-          context.emit('scroll', direction, e);
         },
       }, {
         default: ({ itemData, index }: { itemData: TransferItem; index: number }) => renderItem(itemData, index),
