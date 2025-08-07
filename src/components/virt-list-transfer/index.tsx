@@ -623,13 +623,14 @@ export default defineComponent({
         }, [
           _h('input', {
             ...searchInputProps,
-            style: {
-              width: '100%',
-              padding: '4px 28px 4px 8px',
-              border: '1px solid #d9d9d9',
-              borderRadius: '4px',
-              fontSize: '12px',
-            },
+          style: {
+            width: '100%',
+            height: '32px',
+            padding: '4px 28px 4px 8px',
+            border: '1px solid #d9d9d9',
+            borderRadius: '4px',
+            fontSize: '12px',
+          },
           }),
           // 清除按钮
           searchValue && _h('span', {
@@ -698,6 +699,7 @@ export default defineComponent({
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
+          alignSelf: 'center',
           padding: '0 8px',
         },
       }, [
@@ -798,7 +800,7 @@ export default defineComponent({
       ],
       style: {
         display: 'flex',
-        alignItems: 'flex-start',
+        alignItems: 'stretch',
         gap: '8px',
         height: '100%',
       },
