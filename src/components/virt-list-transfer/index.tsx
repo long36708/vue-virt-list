@@ -9,8 +9,8 @@ import {
   type VNode,
   type SetupContext,
 } from 'vue-demi';
-import { VirtList } from '../virt-list/index.js';
-import type { TransferProps, TransferItem, TransferEmit } from './type.js';
+import { VirtList } from '../virt-list/index';
+import type { TransferProps, TransferItem, TransferEmit } from './type';
 import { _h, getSlot, mergeStyles } from '../../utils';
 import './transfer.css';
 

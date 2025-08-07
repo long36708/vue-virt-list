@@ -34,26 +34,11 @@
 
     <!-- demo -->
     <div class="demo-transfer">
-      <VirtListTransfer
-        v-model:targetKeys="targetKeys"
-        v-model:selectedKeys="selectedKeys"
-        :dataSource="dataSource"
-        :titles="['源列表', '目标列表']"
-        :operations="['>', '<']"
-        :showSearch="showSearch"
-        :showSelectAll="showSelectAll"
-        :oneWay="oneWay"
-        :disabled="disabled"
-        :searchPlaceholder="'请输入搜索关键词'"
-        :notFoundContent="'没有数据'"
-        :itemHeight="40"
-        :buffer="5"
-        :listStyle="{ height: '300px' }"
-        @change="handleChange"
-        @selectChange="handleSelectChange"
-        @search="handleSearch"
-        @scroll="handleScroll"
-      />
+      <VirtListTransfer v-model:targetKeys="targetKeys" v-model:selectedKeys="selectedKeys" :dataSource="dataSource"
+        :titles="['源列表', '目标列表']" :operations="['>', '<']" :showSearch="showSearch" :showSelectAll="showSelectAll"
+        :oneWay="oneWay" :disabled="disabled" :searchPlaceholder="'请输入搜索关键词'" :notFoundContent="'没有数据'" :itemHeight="40"
+        :buffer="5" :listStyle="{ height: '300px' }" @change="handleChange" @selectChange="handleSelectChange"
+        @search="handleSearch" @scroll="handleScroll" />
     </div>
 
     <!-- status info -->
@@ -169,6 +154,7 @@ const toggleDisabled = () => {
 
 <style lang="scss" scoped>
 .demo-transfer {
+  height: 300px;
   background-color: var(--vp-sidebar-bg-color);
   border: 1px solid var(--vp-c-border);
   border-radius: 8px;
@@ -227,4 +213,4 @@ const toggleDisabled = () => {
     background-color: var(--vp-c-bg-mute);
   }
 }
-</style> 
+</style>
