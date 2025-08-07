@@ -89,7 +89,7 @@ const generateData = (count: number): TransferItem[] => {
 };
 
 onBeforeMount(() => {
-  dataSource.value = generateData(100);
+  dataSource.value = generateData(2000);
   targetKeys.value = ['item-1', 'item-3', 'item-5'];
 });
 

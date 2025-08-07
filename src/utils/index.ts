@@ -243,3 +243,26 @@ export function mergeClasses(...classes: ClassType[]): string {
 export const isUndefined = (val: any): val is undefined => val === undefined;
 export const isBoolean = (val: any): val is boolean => typeof val === 'boolean';
 export const isNumber = (val: any): val is number => typeof val === 'number';
+
+/**
+ * 防抖函数
+ * @param fn 需要防抖的函数
+ * @param delay 延迟时间，默认300ms
+ * @returns 防抖后的函数
+ */
+export function debounce<T extends (...args: any[]) => any>(
+  fn: T,
+  delay = 300
+): (...args: Parameters<T>) => void {
+  let timer: number | null = null;
+  return function(this: any, ...args: Parameters<T>) {
+    if (timer) {
+      clearTimeout(timer);
+    }
+    timer = setTimeout(() => {
+      fn.apply(this, args);
+      timer = null;
+    }, delay) as unknown as number;
+  };
+}
+
