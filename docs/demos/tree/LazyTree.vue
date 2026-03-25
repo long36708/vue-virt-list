@@ -14,13 +14,7 @@ const customFieldNames = {
   title: 'name',
 };
 
-const treeData = shallowRef([
-  {
-    name: 'Lazy Parent',
-    id: 'lazy-1',
-    isLeaf: false,
-  },
-]);
+const treeData = shallowRef([]);
 
 const loadMore = async (node: any): Promise<any[]> => {
   // 模拟异步请求的 mock 数据
@@ -57,7 +51,25 @@ const loadMore = async (node: any): Promise<any[]> => {
         isLeaf: true,
       },
     ];
-    return list;
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        return resolve(list);
+      }, 500); // 延迟500毫秒
+    });
+  }
+
+  if (node.key === 'lazy-1-1') {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        return reject([
+          {
+            name: 'Lazy Child',
+            id: 'lazy-1-1-1',
+            isLeaf: true,
+          },
+        ]);
+      }, 500); // 延迟500毫秒
+    });
   }
   return [];
 };
@@ -71,10 +83,21 @@ const checkedKeys = ref([]);
 function handleCheckedKeys() {
   console.log('checkedKeys', checkedKeys);
 }
+
+function handleClickInit() {
+  treeData.value = [
+    {
+      name: 'Lazy Parent',
+      id: 'lazy-1',
+      isLeaf: false,
+    },
+  ];
+}
 </script>
 
 <template>
   <div class="demo-tree">
+    <button @click="handleClickInit">初始化</button>
     <button @click="handleCheckedKeys">获取选中项</button>
     <div class="virt-tree-wrapper">
       <VirtTree
