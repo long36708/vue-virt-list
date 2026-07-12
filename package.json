@@ -1,8 +1,11 @@
 {
-  "name": "vue-virt-list",
+  "name": "longmo-vue-virt-list",
   "version": "1.5.11",
   "description": "Tiny & Virtual scroll list & Huge amount data & High performance (support vue2.x&vue3.x)",
-  "author": "kolarorz",
+  "authors": [
+    "kolarorz",
+    "longmo"
+  ],
   "license": "MIT",
   "type": "module",
   "main": "lib/index.js",
